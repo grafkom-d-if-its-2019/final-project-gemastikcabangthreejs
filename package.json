@@ -1,0 +1,46 @@
+{
+  "name": "dino3d",
+  "version": "1.0.0",
+  "description": "3d version of legendary google chrome's dino game",
+  "main": "index.js",
+  "directories": {
+    "lib": "lib"
+  },
+  "scripts": {
+    "test": "gulp dev",
+    "start": "gulp dev & nodemon server.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/grafkom-d-if-its-2019/final-project-gemastikcabangthreejs.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/grafkom-d-if-its-2019/final-project-gemastikcabangthreejs/issues"
+  },
+  "homepage": "https://github.com/grafkom-d-if-its-2019/final-project-gemastikcabangthreejs#readme",
+  "dependencies": {
+    "@babel/core": "^7.7.4",
+    "@babel/preset-env": "^7.7.4",
+    "express": "^4.17.1",
+    "gulp": "^4.0.2",
+    "gulp-babel": "^8.0.0",
+    "gulp-plumber": "^1.2.1",
+    "gulp-uglify": "^3.0.2",
+    "gulp-util": "^3.0.8",
+    "three": "^0.111.0",
+    "three-orbitcontrols": "^2.110.1",
+    "vinyl-buffer": "^1.0.1",
+    "vinyl-source-stream": "^2.0.0"
+  },
+  "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-loader": "^8.0.6",
+    "babel-preset-es2015": "^6.24.1",
+    "babelify": "^10.0.0",
+    "browserify": "^16.5.0",
+    "nodemon": "^2.0.1",
+    "watchify": "^3.11.1"
+  }
+}
