@@ -1,80 +1,75 @@
 import { Mesh } from "three";
 import { GEOMETRY, MATERIALS, CONSTANTS, CAMERA } from "./constants";
 
-function Dino() {
-  var dino = new Mesh(GEOMETRY.dino, MATERIALS.dino);
+class Dino extends Mesh {
+  constructor() {
+    super(GEOMETRY.dino, MATERIALS.dino);
+    this.position.x = 0;
+    this.position.y = 0;
+    this.position.z = 0;
+    this.status = {
+      jumping: false
+    };
+    this.speed = {
+      x: 0,
+      y: 0,
+      z: 0
+    };
+    this.move = {
+      x: this.moveX.bind(this),
+      z: this.moveZ.bind(this)
+    };
+  }
 
-  dino.position.x = 0;
-  dino.position.y = 0;
-  dino.position.z = 0;
-
-  dino.status = {
-    jumping: false
-  };
-
-  dino.speed = {
-    x: 0,
-    y: 0,
-    z: 0
-  };
-
-  dino.move = {
-    x: function(x) {
-      dino.speed.x += x;
-    },
-    z: function(z) {
-      dino.speed.z += z;
-      if (dino.position.z > 0) dino.position.z = 0;
-      if (dino.position.z < -CAMERA.far / 8) dino.position.z = -CAMERA.far / 8;
+  moveX(x) {
+    this.speed.x += x;
+  }
+  moveZ(z) {
+    this.speed.z += z;
+    if (this.position.z > 0) this.position.z = 0;
+    if (this.position.z < -CAMERA.far / 8) this.position.z = -CAMERA.far / 8;
+  }
+  jump() {
+    if (!this.status.jumping) {
+      this.speed.y = CONSTANTS.bounceAdd;
+      this.status.jumping = true;
     }
-  };
-
-  dino.animate = function() {
-    //x
-    dino.position.x += dino.speed.x;
-    dino.speed.x *= CONSTANTS.velocityMultiplier;
-    if (dino.position.x < -CONSTANTS.planeWidth / 2 + CONSTANTS.dinoWidth / 2) {
-      dino.position.x = -CONSTANTS.planeWidth / 2 + CONSTANTS.dinoWidth / 2;
-      dino.speed.x = 0;
+  }
+  duck() {
+    this.speed.y = -CONSTANTS.bounceAdd;
+  }
+  animate() {
+    this.position.x += this.speed.x;
+    this.speed.x *= CONSTANTS.velocityMultiplier;
+    if (this.position.x < -CONSTANTS.planeWidth / 2 + CONSTANTS.dinoWidth / 2) {
+      this.position.x = -CONSTANTS.planeWidth / 2 + CONSTANTS.dinoWidth / 2;
+      this.speed.x = 0;
     }
-    if (dino.position.x > CONSTANTS.planeWidth / 2 - CONSTANTS.dinoWidth / 2) {
-      dino.position.x = CONSTANTS.planeWidth / 2 - CONSTANTS.dinoWidth / 2;
-      dino.speed.x = 0;
+    if (this.position.x > CONSTANTS.planeWidth / 2 - CONSTANTS.dinoWidth / 2) {
+      this.position.x = CONSTANTS.planeWidth / 2 - CONSTANTS.dinoWidth / 2;
+      this.speed.x = 0;
     }
 
     //y
-    dino.position.y += dino.speed.y;
-    dino.speed.y -= CONSTANTS.gravity;
-    if (dino.position.y <= 0) {
-      dino.status.jumping = false;
+    this.position.y += this.speed.y;
+    this.speed.y -= CONSTANTS.gravity;
+    if (this.position.y <= 0) {
+      this.status.jumping = false;
     }
-    dino.position.y = Math.max(0, dino.position.y);
+    this.position.y = Math.max(0, this.position.y);
 
     //z
-    dino.position.z += dino.speed.z;
-    dino.speed.z *= CONSTANTS.velocityMultiplier;
-    if (dino.position.z < -CAMERA.far / 8) {
-      dino.position.z = -CAMERA.far / 8;
-      dino.speed.z = 0;
+    this.position.z += this.speed.z;
+    this.speed.z *= CONSTANTS.velocityMultiplier;
+    if (this.position.z < -CAMERA.far / 8) {
+      this.position.z = -CAMERA.far / 8;
+      this.speed.z = 0;
     }
-    if (dino.position.z > 0) {
-      dino.position.z = 0;
-      dino.speed.z = 0;
+    if (this.position.z > 0) {
+      this.position.z = 0;
+      this.speed.z = 0;
     }
-  };
-
-  dino.jump = function() {
-    if (!dino.status.jumping) {
-      dino.speed.y = CONSTANTS.bounceAdd;
-      dino.status.jumping = true;
-    }
-  };
-
-  dino.duck = function() {
-    dino.speed.y = -CONSTANTS.bounceAdd;
-  };
-
-  return dino;
+  }
 }
 
 export default Dino;

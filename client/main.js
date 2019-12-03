@@ -1,7 +1,12 @@
+// external dependency
 import * as THREE from "three";
+
+// internal dependency
+import SocketHandler from "./socket";
 import Dino from "./dino";
 import Tree from "./tree";
 import Crow from "./crow";
+
 import {
   GEOMETRY,
   MATERIALS,
@@ -12,16 +17,18 @@ import {
 } from "./constants";
 
 var controls, renderer, scene, camera;
-var plane, dino;
+var plane, dino, socket;
 var treeSpawnInterval, crowSpawnInterval;
-
+var mainPlayer = null;
+var otherPlayers = {};
+var unusedTrees = [];
+var unusedCrows = [];
 var trees = [];
 var crows = [];
 
 function createScene() {
   scene = new THREE.Scene();
 
-  console.log("TCL: createScene -> CAMERA", CAMERA);
   camera = new THREE.PerspectiveCamera(
     CAMERA.fov,
     window.innerWidth / window.innerHeight,
@@ -76,23 +83,55 @@ function addPlane() {
 function prepareGame() {
   addLight();
   addPlane();
-  // mountain();
-  InitDino();
+  SocketHandler.init(scene);
+  SocketHandler.socket.on("currentPlayers", SocketHandler.currentPlayers);
+  SocketHandler.socket.on("newPlayer", SocketHandler.newPlayer);
+  SocketHandler.socket.on("disconnect", SocketHandler.disconnect);
 }
 
 function animate() {
   requestAnimationFrame(animate);
-  trees.forEach(tree => {
+  var removeTrees = [];
+  var removeCrows = [];
+  trees.forEach((tree, idx) => {
     tree.animate();
+    if (tree.outside()) {
+      unusedTrees.push(tree);
+      removeTrees.push(idx);
+      scene.remove(tree);
+    }
   });
-  crows.forEach(crow => {
+  crows.forEach((crow, idx) => {
     crow.animate();
+    if (crow.outside()) {
+      unusedCrows.push(crow);
+      removeCrows.push(idx);
+      scene.remove(crow);
+    }
   });
-  dino.animate();
+
+  trees = trees.filter((tree, idx) => {
+    if (removeTrees.indexOf(idx) === -1) {
+      return true;
+    }
+    return false;
+  });
+
+  crows = crows.filter((crow, idx) => {
+    if (removeCrows.indexOf(idx) === -1) {
+      return true;
+    }
+    return false;
+  });
+  SocketHandler.mainPlayer.dino.animate();
+  Object.keys(SocketHandler.otherPlayers).forEach(id => {
+    SocketHandler.otherPlayers[id].dino.animate();
+  });
   renderer.render(scene, camera);
 }
 
 function onKeyDown(event) {
+  var dino = SocketHandler.mainPlayer.dino;
   if (event.code == "ArrowLeft") {
     if (dino.speed.x > 0.5) dino.speed.x = 0.8;
     dino.move.x(-0.5);
@@ -120,18 +159,26 @@ function startGame() {
   crowSpawnInterval = window.setInterval(spawnCrow, 2000);
 }
 
-// Object
-
-// End of Object
-
 function spawnTree() {
-  var tree = new Tree();
+  var tree;
+  if (unusedTrees.length !== 0) {
+    tree = unusedTrees.shift();
+    tree.randomPosition();
+  } else {
+    tree = new Tree();
+  }
   scene.add(tree);
   trees.push(tree);
 }
 
 function spawnCrow() {
-  var crow = new Crow();
+  var crow;
+  if (unusedCrows.length !== 0) {
+    crow = unusedCrows.shift();
+    crow.randomPosition();
+  } else {
+    crow = new Crow();
+  }
   scene.add(crow);
   crows.push(crow);
 }

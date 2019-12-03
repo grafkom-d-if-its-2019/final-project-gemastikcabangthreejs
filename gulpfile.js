@@ -6,8 +6,6 @@ var buffer = require("vinyl-buffer");
 var browserify = require("browserify");
 var watchify = require("watchify");
 var babelify = require("babelify");
-var babel = require("gulp-babel");
-var plumber = require("gulp-plumber");
 
 var colors = {
   success: gutil.colors.green,
@@ -20,7 +18,8 @@ function build(watch) {
   var bundler = browserify("./client/main.js", { debug: true }).transform(
     babelify.configure({
       comments: false,
-      presets: ["@babel/preset-env"]
+      presets: ["@babel/preset-env"],
+      plugins: ["@babel/plugin-proposal-class-properties"]
     })
   );
 

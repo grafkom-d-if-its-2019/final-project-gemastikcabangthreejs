@@ -1,20 +1,32 @@
 import { Mesh } from "three";
-import { GEOMETRY, MATERIALS, CONSTANTS, SPEED } from "./constants";
+import { GEOMETRY, MATERIALS, CONSTANTS, SPEED, CAMERA } from "./constants";
 import { randomNumber } from "./utils";
 
-function Tree() {
-  var object = new Mesh(GEOMETRY.tree, MATERIALS.tree);
-  object.position.z = -CONSTANTS.planeLength;
-  object.position.y = 0;
-  object.position.x = randomNumber(
-    -CONSTANTS.planeWidth / 2,
-    CONSTANTS.planeWidth / 2
-  );
-  object.animate = function() {
-    object.position.z += SPEED.obstacleZ;
-  };
+class Tree extends Mesh {
+  constructor() {
+    super(GEOMETRY.tree, MATERIALS.tree);
+    this.randomPosition();
+  }
 
-  return object;
+  animate() {
+    this.position.z += SPEED.obstacleZ;
+  }
+
+  outside() {
+    if (this.position.z > CAMERA.fov + CAMERA.near) {
+      return true;
+    }
+    return false;
+  }
+
+  randomPosition() {
+    this.position.z = -CONSTANTS.planeLength;
+    this.position.y = 0;
+    this.position.x = randomNumber(
+      -CONSTANTS.planeWidth / 2,
+      CONSTANTS.planeWidth / 2
+    );
+  }
 }
 
 export default Tree;

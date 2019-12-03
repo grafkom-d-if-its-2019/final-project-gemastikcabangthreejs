@@ -1,23 +1,35 @@
 import { Mesh } from "three";
-import { GEOMETRY, MATERIALS, CONSTANTS, SPEED } from "./constants";
+import { GEOMETRY, MATERIALS, CONSTANTS, SPEED, CAMERA } from "./constants";
 import { randomNumber } from "./utils";
 
-function Crow() {
-  var object;
-  object = new Mesh(GEOMETRY.crow, MATERIALS.crow);
-  object.position.z = -CONSTANTS.planeLength;
-  object.position.y = randomNumber(
-    CONSTANTS.crowLimit.lowerBound,
-    CONSTANTS.crowLimit.upperBound
-  );
-  object.position.x = randomNumber(
-    -CONSTANTS.planeWidth / 2,
-    CONSTANTS.planeWidth / 2
-  );
-  object.animate = function() {
-    object.position.z += SPEED.obstacleZ;
-  };
-  return object;
+class Crow extends Mesh {
+  constructor() {
+    super(GEOMETRY.crow, MATERIALS.crow);
+    this.randomPosition();
+  }
+
+  animate() {
+    this.position.z += SPEED.obstacleZ;
+  }
+
+  outside() {
+    if (this.position.z > CAMERA.fov + CAMERA.near) {
+      return true;
+    }
+    return false;
+  }
+
+  randomPosition() {
+    this.position.z = -CONSTANTS.planeLength;
+    this.position.y = randomNumber(
+      CONSTANTS.crowLimit.lowerBound,
+      CONSTANTS.crowLimit.upperBound
+    );
+    this.position.x = randomNumber(
+      -CONSTANTS.planeWidth / 2,
+      CONSTANTS.planeWidth / 2
+    );
+  }
 }
 
 export default Crow;

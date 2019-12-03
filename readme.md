@@ -11,3 +11,9 @@ Anggota Kelompok
 
 
 [Proposal FP](ProposalFP.pdf)
+
+## Instructions
+
+1. Install node dan npm pada os. Jalankan ``npm install``
+2. Setelah semua di install jalankan ``npm run start-dev`` untuk mode dev ``npm run start-prod`` untuk mode prod
+3. Buka ``http://localhost:8081``
