@@ -7,44 +7,48 @@ class SocketHandler {
   static mainPlayer;
   static otherPlayers = {};
   static randomSeed = undefined;
-  static gameReady = false;
 
   static init = (scene, camera) => {
-    this.socket = io();
+    var url = window.location.href.slice(window.location.href.indexOf("?") + 1);
+
+    this.socket = io("http://localhost:8081", { query: url });
     this.scene = scene;
     this.camera = camera;
-    this.gameReady = false;
-    // this.rng = Math.random;
+    this.roomStatus = false;
+    this.socket.on("requestHandshake", this.requestHandshake);
+    this.socket.on("roomReady", this.roomReady);
+    this.socket.on("newPlayer", this.newPlayer);
+    this.socket.on("disconnect", this.disconnect);
+    this.socket.on("playerMoved", this.playerMoved);
   };
 
   static checkGameReady = () => {
-    var keys = Object.keys(this.otherPlayers);
-    if (this.randomSeed !== undefined && keys.length > 0) {
-      return true;
-    }
-    return false;
+    return this.roomStatus;
   };
 
-  static constValue = value => {
+  static roomReady = value => {
+    console.log("TCL: SocketHandler -> staticroomReady -> roomStatus", value);
+    this.roomStatus = value;
+  };
+
+  static requestHandshake = value => {
     console.log("TCL: SocketHandler -> value", value);
     this.randomSeed = value.randomSeed;
     this.rng = seedrandom(this.randomSeed);
-  };
-
-  static currentPlayers = players => {
-    Object.keys(players).forEach(id => {
-      players[id].dino = new Dino();
-      players[id].dino.position.x = players[id].position.x;
-      players[id].dino.position.y = players[id].position.y;
-      players[id].dino.position.z = players[id].position.z;
-      if (players[id].playerId === this.socket.id) {
-        this.mainPlayer = players[id];
-        players[id].dino.add(this.camera);
+    Object.keys(value.players).forEach(id => {
+      value.players[id].dino = new Dino();
+      value.players[id].dino.position.x = value.players[id].position.x;
+      value.players[id].dino.position.y = value.players[id].position.y;
+      value.players[id].dino.position.z = value.players[id].position.z;
+      if (value.players[id].playerId === this.socket.id) {
+        this.mainPlayer = value.players[id];
+        value.players[id].dino.add(this.camera);
       } else {
-        this.otherPlayers[id] = players[id];
+        this.otherPlayers[id] = value.players[id];
       }
-      this.scene.add(players[id].dino);
+      this.scene.add(value.players[id].dino);
     });
+    this.socket.emit("acknowledge", value);
   };
 
   static newPlayer = player => {
@@ -66,19 +70,6 @@ class SocketHandler {
       speed: dino.speed
     };
     this.socket.emit("playerMovement", payload);
-  };
-
-  static playerStopMoved = dino => {
-    var payload = {
-      position: dino.position
-    };
-    this.socket.emit("playerStopMoved", payload);
-  };
-
-  static finalSyncPosition = player => {
-    this.otherPlayers[player.playerId].dino.position.x = player.position.x;
-    this.otherPlayers[player.playerId].dino.position.y = player.position.y;
-    this.otherPlayers[player.playerId].dino.position.z = player.position.z;
   };
 
   static playerMoved = player => {

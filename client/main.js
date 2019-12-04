@@ -85,12 +85,6 @@ function prepareGame() {
   addLight();
   addPlane();
   SocketHandler.init(scene, camera);
-  SocketHandler.socket.on("constValue", SocketHandler.constValue);
-  SocketHandler.socket.on("currentPlayers", SocketHandler.currentPlayers);
-  SocketHandler.socket.on("newPlayer", SocketHandler.newPlayer);
-  SocketHandler.socket.on("disconnect", SocketHandler.disconnect);
-  SocketHandler.socket.on("playerMoved", SocketHandler.playerMoved);
-  SocketHandler.socket.on("finalSyncPosition", SocketHandler.finalSyncPosition);
 }
 
 function animate() {
@@ -201,12 +195,16 @@ function initGame() {
   prepareGame();
   document.addEventListener("keydown", onKeyDown);
   var checkServer = window.setInterval(() => {
+    console.log(
+      "TCL: initGame -> SocketHandler.checkGameReady()",
+      SocketHandler.checkGameReady()
+    );
     if (SocketHandler.checkGameReady()) {
       startGame();
       animate();
       clearInterval(checkServer);
     }
-  }, 500);
+  }, 1000);
 }
 
 initGame();
