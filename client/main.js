@@ -72,6 +72,7 @@ function addPlane() {
     CONSTANTS.planeLength,
     1
   );
+
   plane = new THREE.Mesh(geometry, material);
   plane.rotation.x = Math.PI * 0.5;
   plane.position.x = 0;
@@ -83,10 +84,13 @@ function addPlane() {
 function prepareGame() {
   addLight();
   addPlane();
-  SocketHandler.init(scene);
+  SocketHandler.init(scene, camera);
+  SocketHandler.socket.on("constValue", SocketHandler.constValue);
   SocketHandler.socket.on("currentPlayers", SocketHandler.currentPlayers);
   SocketHandler.socket.on("newPlayer", SocketHandler.newPlayer);
   SocketHandler.socket.on("disconnect", SocketHandler.disconnect);
+  SocketHandler.socket.on("playerMoved", SocketHandler.playerMoved);
+  SocketHandler.socket.on("finalSyncPosition", SocketHandler.finalSyncPosition);
 }
 
 function animate() {
@@ -152,6 +156,15 @@ function onKeyDown(event) {
   if (event.code == "KeyX") {
     dino.duck();
   }
+  if (event.code == "Tab") {
+    dino.remove(camera);
+    Object.keys(SocketHandler.otherPlayers).forEach(id => {
+      camera.position.x = SocketHandler.otherPlayers[id].dino.position.x;
+      camera.position.y = SocketHandler.otherPlayers[id].dino.position.y + 30;
+      camera.position.z = SocketHandler.otherPlayers[id].dino.position.z + 100;
+    });
+  }
+  SocketHandler.playerMovement(dino);
 }
 
 function startGame() {
@@ -187,8 +200,13 @@ function initGame() {
   createScene();
   prepareGame();
   document.addEventListener("keydown", onKeyDown);
-  startGame();
-  animate();
+  var checkServer = window.setInterval(() => {
+    if (SocketHandler.checkGameReady()) {
+      startGame();
+      animate();
+      clearInterval(checkServer);
+    }
+  }, 500);
 }
 
 initGame();

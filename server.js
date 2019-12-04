@@ -16,6 +16,8 @@ server.listen(8081, function() {
   console.log(`Listening on ${server.address().port}`);
 });
 
+var randomSeed = Math.random();
+
 io.on("connection", function(socket) {
   players[socket.id] = {
     alive: true,
@@ -25,8 +27,17 @@ io.on("connection", function(socket) {
       x: Math.floor(Math.random() * 120) - 60,
       y: 0,
       z: 0
+    },
+    speed: {
+      x: 0,
+      y: 0,
+      z: 0
     }
   };
+  var constValue = {
+    randomSeed: randomSeed
+  };
+  socket.emit("constValue", constValue);
   socket.emit("currentPlayers", players);
   socket.broadcast.emit("newPlayer", players[socket.id]);
   console.log("a user connected", players);
@@ -34,5 +45,12 @@ io.on("connection", function(socket) {
     console.log("user disconnected");
     delete players[socket.id];
     io.emit("disconnect", socket.id);
+  });
+  socket.on("playerMovement", function(payload) {
+    console.log("TCL: playerMovement", payload, socket.id);
+    players[socket.id].speed.x = payload.speed.x;
+    players[socket.id].speed.y = payload.speed.y;
+    players[socket.id].speed.z = payload.speed.z;
+    socket.broadcast.emit("playerMoved", players[socket.id]);
   });
 });

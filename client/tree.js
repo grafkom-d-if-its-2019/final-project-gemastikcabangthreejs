@@ -1,6 +1,7 @@
 import { Mesh } from "three";
 import { GEOMETRY, MATERIALS, CONSTANTS, SPEED, CAMERA } from "./constants";
 import { randomNumber } from "./utils";
+import SocketHandler from "./socket";
 
 class Tree extends Mesh {
   constructor() {
@@ -8,25 +9,25 @@ class Tree extends Mesh {
     this.randomPosition();
   }
 
-  animate() {
+  animate = () => {
     this.position.z += SPEED.obstacleZ;
-  }
+  };
 
-  outside() {
+  outside = () => {
     if (this.position.z > CAMERA.fov + CAMERA.near) {
       return true;
     }
     return false;
-  }
+  };
 
-  randomPosition() {
+  randomPosition = () => {
     this.position.z = -CONSTANTS.planeLength;
     this.position.y = 0;
-    this.position.x = randomNumber(
+    this.position.x = SocketHandler.randomNumber(
       -CONSTANTS.planeWidth / 2,
       CONSTANTS.planeWidth / 2
     );
-  }
+  };
 }
 
 export default Tree;
