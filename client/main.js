@@ -1,6 +1,9 @@
 // external dependency
 import * as THREE from "three";
+<<<<<<< Updated upstream
 import path from "path";
+=======
+>>>>>>> Stashed changes
 var ColladaLoader = require('three-collada-loader');
 
 // internal dependency
@@ -28,6 +31,7 @@ var unusedCrows = [];
 var trees = [];
 var crows = [];
 var mountains = [];
+<<<<<<< Updated upstream
 var cactus = [];
 var sky = {};
 var skyGeometry = {};
@@ -35,6 +39,8 @@ var skyMaterial = {};
 var skyTexture = {};
 var directionalLight = {};
 var hemisphereLight = {};
+=======
+>>>>>>> Stashed changes
 
 function createScene() {
   scene = new THREE.Scene();
@@ -91,6 +97,7 @@ function addPlane() {
   scene.add(plane);
 }
 
+<<<<<<< Updated upstream
 function createLandscapeFloors () {
   var planeLeft = {},
       planeLeftGeometry = {},
@@ -114,12 +121,16 @@ function createLandscapeFloors () {
 }
 
 function createCactus(i) {
+=======
+function addMountain(i, isEast) {
+>>>>>>> Stashed changes
   var loader = {},
       prototype = {},
       object = {},
       objectDimensionX = {},
       objectDimensionY = {},
       objectDimensionZ = {};
+<<<<<<< Updated upstream
   
   loader = new ColladaLoader();
   
@@ -171,6 +182,9 @@ function createMountain ( i, isEast, layer) {
   
   loader = new ColladaLoader();
   
+=======
+  loader = new ColladaLoader();
+>>>>>>> Stashed changes
   function createObject () {
     object = prototype.clone();
     objectDimensionX = Math.random() * 0.25 + 0.05;
@@ -179,6 +193,7 @@ function createMountain ( i, isEast, layer) {
     object.scale.set( objectDimensionX, objectDimensionY, objectDimensionZ );
     
     if ( isEast === true ) {
+<<<<<<< Updated upstream
       object.position.x = CONSTANTS.planeWidth * layer;
       object.position.z = ( i * CONSTANTS.planeLength / 27 ) - ( 1.5 * CONSTANTS.planeLength );
     } else {
@@ -186,6 +201,14 @@ function createMountain ( i, isEast, layer) {
       object.position.z = ( i * CONSTANTS.planeLength / 27 ) - ( CONSTANTS.planeLength / 2 );
     }
     object.position.y = -5;
+=======
+      object.position.x = CONSTANTS.planeWidth
+      object.position.z = ( i * CONSTANTS.planeLength / 27 ) - ( 1.5 * CONSTANTS.planeLength );
+    } else {
+      object.position.x = -CONSTANTS.planeWidth
+      object.position.z = ( i * CONSTANTS.planeLength / 27 ) - ( CONSTANTS.planeLength / 2 );
+    }
+>>>>>>> Stashed changes
     
     object.visible = true;
     
@@ -197,10 +220,21 @@ function createMountain ( i, isEast, layer) {
         object.position.z = -CONSTANTS.planeLength / 2;
       }
     }
+<<<<<<< Updated upstream
+=======
+
+    object.outside = function () {
+      if (object.position.z > CAMERA.fov + CAMERA.near) {
+        return true;
+      }
+      return false;
+    }
+>>>>>>> Stashed changes
     
     mountains.push( object );
     scene.add( object );
   }
+<<<<<<< Updated upstream
   
   loader.load(
     'https://s3-us-west-2.amazonaws.com/s.cdpn.io/26757/mountain.dae',
@@ -213,10 +247,24 @@ function createMountain ( i, isEast, layer) {
   
 }
 
+=======
+  console.log('in');
+  loader.load(
+    './mountain.dae',
+    function ( collada ) {
+      prototype = collada.scene;
+      console.log(prototype);
+      prototype.visible = true;
+      createObject();
+    } );
+
+}
+>>>>>>> Stashed changes
 
 function prepareGame() {
   addLight();
   addPlane();
+<<<<<<< Updated upstream
   createLandscapeFloors();
   for (var layer = 1; layer < 4; layer += 1) {
     for ( var i = 0; i < 60; i += 1 ) {
@@ -248,6 +296,19 @@ function prepareGame() {
   scene.add(directionalLight, hemisphereLight);
 
   SocketHandler.init(scene, camera);
+=======
+  for ( var i = 0; i < 60; i += 1 ) {
+    var isEast = false;
+    if ( i > 29 ) {
+      isEast = true;
+    }
+    addMountain( i, isEast );
+  }
+  SocketHandler.init(scene);
+  SocketHandler.socket.on("currentPlayers", SocketHandler.currentPlayers);
+  SocketHandler.socket.on("newPlayer", SocketHandler.newPlayer);
+  SocketHandler.socket.on("disconnect", SocketHandler.disconnect);
+>>>>>>> Stashed changes
 }
 
 function animate() {
@@ -270,12 +331,18 @@ function animate() {
       scene.remove(crow);
     }
   });
+<<<<<<< Updated upstream
   mountains.forEach((mountain) => {
     mountain.animate();
   });
   cactus.forEach((tree) => {
     tree.animate();
   });
+=======
+  mountains.forEach((mountain, idx) => {
+    mountain.animate();
+  });
+>>>>>>> Stashed changes
 
   trees = trees.filter((tree, idx) => {
     if (removeTrees.indexOf(idx) === -1) {
