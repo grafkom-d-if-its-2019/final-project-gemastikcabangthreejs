@@ -2,8 +2,10 @@
 import * as THREE from "three";
 import path from "path";
 var ColladaLoader = require('three-collada-loader');
+var STLLoader = require('three-stl-loader')(THREE);
 
 // internal dependency
+import { randomNumber } from "./utils";
 import SocketHandler from "./socket";
 import Dino from "./dino";
 import Tree from "./tree";
@@ -59,11 +61,11 @@ function createScene() {
 }
 
 function addLight() {
-  var light = new THREE.HemisphereLight(COLORS.ground, COLORS.ground, 1);
+  var light = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.5);
   scene.add(light);
-  var directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-  directionalLight.position.set(0, 20, 0);
-  // scene.add(directionalLight);
+  var directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+  directionalLight.position.set(0, 1, 0);
+  scene.add(directionalLight);
 }
 
 function InitDino() {
@@ -123,19 +125,18 @@ function createCactus(i) {
   
   loader = new ColladaLoader();
   
+  
   function createObject () {
     object = prototype.clone();
-    // objectDimensionX = Math.random() * 0.25 + 0.05;
-    // objectDimensionY = Math.random() * 0.25;
-    // objectDimensionZ = objectDimensionX;
-    // object.scale.set( objectDimensionX, objectDimensionY, objectDimensionZ );
-    if ( true ) {
-      object.position.x = 0;
-      object.position.z = ( i * CONSTANTS.planeLength / 27 ) - ( 1.5 * CONSTANTS.planeLength );
-    } else {
-      object.position.x = 0;
-      object.position.z = ( i * CONSTANTS.planeLength / 27 ) - ( CONSTANTS.planeLength / 2 );
-    }
+    objectDimensionX = 5;
+    objectDimensionY = 5;
+    objectDimensionZ = 5;
+    object.scale.set( objectDimensionX, objectDimensionY, objectDimensionZ );
+    object.rotateY(Math.PI / 2);
+    object.rotateX(-Math.PI / 2);
+    object.position.x = randomNumber(-CONSTANTS.planeWidth / 2, CONSTANTS.planeWidth / 2);
+    console.log(object.position.x);
+    object.position.z = ( i * CONSTANTS.planeLength / 27 ) - ( 1.5 * CONSTANTS.planeLength );
     object.position.y = -5;
     
     object.visible = true;
@@ -147,6 +148,7 @@ function createCactus(i) {
       } else {
         object.position.z = -CONSTANTS.planeLength / 2;
       }
+      
     }
     
     cactus.push( object );
@@ -159,6 +161,13 @@ function createCactus(i) {
       prototype.visible = false;
       createObject();
     } );
+  // loader.load('/client/cactus.stl', function (geometry) {
+  //   var material = new THREE.MeshNormalMaterial()
+  //   var mesh = new THREE.Mesh(geometry, material)
+  //   prototype = mesh;
+  //   prototype.visible = false;
+  //   createObject();
+  // })
 }
 
 function createMountain ( i, isEast, layer) {
@@ -174,17 +183,18 @@ function createMountain ( i, isEast, layer) {
   function createObject () {
     object = prototype.clone();
     objectDimensionX = Math.random() * 0.25 + 0.05;
-    objectDimensionY = Math.random() * 0.25;
+    objectDimensionY = Math.random() * 0.75;
     objectDimensionZ = objectDimensionX;
     object.scale.set( objectDimensionX, objectDimensionY, objectDimensionZ );
     
     if ( isEast === true ) {
-      object.position.x = CONSTANTS.planeWidth
+      object.position.x = CONSTANTS.planeWidth * layer;
       object.position.z = ( i * CONSTANTS.planeLength / 27 ) - ( 1.5 * CONSTANTS.planeLength );
     } else {
-      object.position.x = -CONSTANTS.planeWidth
+      object.position.x = -CONSTANTS.planeWidth * layer;
       object.position.z = ( i * CONSTANTS.planeLength / 27 ) - ( CONSTANTS.planeLength / 2 );
     }
+    object.position.y = -5;
     
     object.visible = true;
     
@@ -196,43 +206,55 @@ function createMountain ( i, isEast, layer) {
         object.position.z = -CONSTANTS.planeLength / 2;
       }
     }
-
-    object.outside = function () {
-      if (object.position.z > CAMERA.fov + CAMERA.near) {
-        return true;
-      }
-      return false;
-    }
     
     mountains.push( object );
     scene.add( object );
   }
-  console.log('in');
+  
   loader.load(
-    './mountain.dae',
+    '/client/mountain.dae',
     function ( collada ) {
       prototype = collada.scene;
-      console.log(prototype);
-      prototype.visible = true;
+      prototype.visible = false;
       createObject();
     } );
-
+  
 }
 
 function prepareGame() {
   addLight();
   addPlane();
-  for ( var i = 0; i < 60; i += 1 ) {
-    var isEast = false;
-    if ( i > 29 ) {
-      isEast = true;
+  createLandscapeFloors();
+  for (var layer = 1; layer < 4; layer += 1) {
+    for ( var i = 0; i < 60; i += 1 ) {
+      var isEast = false;
+      if ( i > 29 ) {
+        isEast = true;
+      }
+      createMountain( i, isEast, layer);
     }
-    addMountain( i, isEast );
   }
-  SocketHandler.init(scene);
-  SocketHandler.socket.on("currentPlayers", SocketHandler.currentPlayers);
-  SocketHandler.socket.on("newPlayer", SocketHandler.newPlayer);
-  SocketHandler.socket.on("disconnect", SocketHandler.disconnect);
+  for (var i = 0; i < 5; i++) {
+    createCactus(i);
+  }
+  var canvas = document.getElementsByTagName('canvas')[0];
+  skyGeometry = new THREE.BoxGeometry( canvas.width +  canvas.width  / 5, canvas.height, 1, 1 );
+  skyMaterial = new THREE.MeshBasicMaterial( {
+    map: new THREE.TextureLoader().load( 'https://s3-us-west-2.amazonaws.com/s.cdpn.io/26757/background.jpg' ),
+    depthWrite: false,
+    side: THREE.BackSide
+  } );
+  sky = new THREE.Mesh( skyGeometry, skyMaterial );
+  sky.position.y = 300;
+  sky.position.z = -CONSTANTS.planeLength / 2 + CONSTANTS.planeWidth * 5 / 2;
+  scene.add(sky);
+  directionalLight = new THREE.DirectionalLight( 0xffffff, 1 );
+  directionalLight.position.set( 0, 40, 0 );
+  hemisphereLight = new THREE.HemisphereLight( 0xFFB74D, 0x37474F, 1 );
+  hemisphereLight.position.y = 500;
+  scene.add(hemisphereLight, directionalLight);
+
+  SocketHandler.init(scene, camera);
 }
 
 function animate() {

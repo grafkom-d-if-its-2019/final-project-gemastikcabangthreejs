@@ -5,8 +5,8 @@
       <author>Blender User</author>
       <authoring_tool>Blender 2.80.75 commit date:2019-07-29, commit time:14:47, hash:f6cb5f54494e</authoring_tool>
     </contributor>
-    <created>2019-12-04T17:02:24</created>
-    <modified>2019-12-04T17:02:24</modified>
+    <created>2019-12-13T15:39:06</created>
+    <modified>2019-12-13T15:39:06</modified>
     <unit name="meter" meter="1"/>
     <up_axis>Z_UP</up_axis>
   </asset>
@@ -31,65 +31,7 @@
       </extra>
     </camera>
   </library_cameras>
-  <library_lights>
-    <light id="SUN-light" name="Lamp">
-      <technique_common>
-        <directional>
-          <color sid="color">5.000001 5.000001 5.000001</color>
-        </directional>
-      </technique_common>
-      <extra>
-        <technique profile="blender">
-          <type sid="type" type="int">1</type>
-          <flag sid="flag" type="int">0</flag>
-          <mode sid="mode" type="int">1</mode>
-          <gamma sid="blender_gamma" type="float">1</gamma>
-          <red sid="red" type="float">1</red>
-          <green sid="green" type="float">1</green>
-          <blue sid="blue" type="float">1</blue>
-          <shadow_r sid="blender_shadow_r" type="float">0</shadow_r>
-          <shadow_g sid="blender_shadow_g" type="float">0</shadow_g>
-          <shadow_b sid="blender_shadow_b" type="float">0</shadow_b>
-          <energy sid="blender_energy" type="float">5.000001</energy>
-          <dist sid="blender_dist" type="float">29.99998</dist>
-          <spotsize sid="spotsize" type="float">75</spotsize>
-          <spotblend sid="spotblend" type="float">0.15</spotblend>
-          <att1 sid="att1" type="float">0</att1>
-          <att2 sid="att2" type="float">1</att2>
-          <falloff_type sid="falloff_type" type="int">2</falloff_type>
-          <clipsta sid="clipsta" type="float">1.000799</clipsta>
-          <clipend sid="clipend" type="float">30.002</clipend>
-          <bias sid="bias" type="float">1</bias>
-          <soft sid="soft" type="float">3</soft>
-          <bufsize sid="bufsize" type="int">2880</bufsize>
-          <samp sid="samp" type="int">3</samp>
-          <buffers sid="buffers" type="int">1</buffers>
-          <area_shape sid="area_shape" type="int">1</area_shape>
-          <area_size sid="area_size" type="float">0.06999999</area_size>
-          <area_sizey sid="area_sizey" type="float">0.1</area_sizey>
-          <area_sizez sid="area_sizez" type="float">1</area_sizez>
-        </technique>
-      </extra>
-    </light>
-  </library_lights>
   <library_effects>
-    <effect id="GROUND-effect">
-      <profile_COMMON>
-        <technique sid="common">
-          <lambert>
-            <emission>
-              <color sid="emission">0 0 0 1</color>
-            </emission>
-            <diffuse>
-              <color sid="diffuse">0.8 0.8 0.8 1</color>
-            </diffuse>
-            <reflectivity>
-              <float sid="specular">0.5</float>
-            </reflectivity>
-          </lambert>
-        </technique>
-      </profile_COMMON>
-    </effect>
     <effect id="CACTUS_GREEN-effect">
       <profile_COMMON>
         <technique sid="common">
@@ -110,46 +52,11 @@
   </library_effects>
   <library_images/>
   <library_materials>
-    <material id="GROUND-material" name="GROUND">
-      <instance_effect url="#GROUND-effect"/>
-    </material>
     <material id="CACTUS_GREEN-material" name="CACTUS_GREEN">
       <instance_effect url="#CACTUS_GREEN-effect"/>
     </material>
   </library_materials>
   <library_geometries>
-    <geometry id="Plane-mesh" name="Plane">
-      <mesh>
-        <source id="Plane-mesh-positions">
-          <float_array id="Plane-mesh-positions-array" count="12">-1 -1 0 1 -1 0 -1 1 0 1 1 0</float_array>
-          <technique_common>
-            <accessor source="#Plane-mesh-positions-array" count="4" stride="3">
-              <param name="X" type="float"/>
-              <param name="Y" type="float"/>
-              <param name="Z" type="float"/>
-            </accessor>
-          </technique_common>
-        </source>
-        <source id="Plane-mesh-normals">
-          <float_array id="Plane-mesh-normals-array" count="3">0 0 1</float_array>
-          <technique_common>
-            <accessor source="#Plane-mesh-normals-array" count="1" stride="3">
-              <param name="X" type="float"/>
-              <param name="Y" type="float"/>
-              <param name="Z" type="float"/>
-            </accessor>
-          </technique_common>
-        </source>
-        <vertices id="Plane-mesh-vertices">
-          <input semantic="POSITION" source="#Plane-mesh-positions"/>
-        </vertices>
-        <triangles material="GROUND-material" count="2">
-          <input semantic="VERTEX" source="#Plane-mesh-vertices" offset="0"/>
-          <input semantic="NORMAL" source="#Plane-mesh-normals" offset="1"/>
-          <p>1 0 2 0 0 0 1 0 3 0 2 0</p>
-        </triangles>
-      </mesh>
-    </geometry>
     <geometry id="Cube_001-mesh" name="Cube.001">
       <mesh>
         <source id="Cube_001-mesh-positions">
@@ -188,20 +95,6 @@
       <node id="Camera" name="Camera" type="NODE">
         <matrix sid="transform">0.7071068 -0.2762885 0.6508953 12 0.7071068 0.2762885 -0.6508952 -12 0 0.9205049 0.390731 10 0 0 0 1</matrix>
         <instance_camera url="#Camera-camera"/>
-      </node>
-      <node id="SUN" name="SUN" type="NODE">
-        <matrix sid="transform">0.5740837 -0.5600231 0.5973291 3.882587 0.3521518 0.8274755 0.4373481 5.969176 -0.7392002 -0.04072388 0.6722533 9.978467 0 0 0 1</matrix>
-        <instance_light url="#SUN-light"/>
-      </node>
-      <node id="GROUND" name="GROUND" type="NODE">
-        <matrix sid="transform">5.610648 0 0 0 0 5.610648 0 0 0 0 5.610648 0 0 0 0 1</matrix>
-        <instance_geometry url="#Plane-mesh" name="GROUND">
-          <bind_material>
-            <technique_common>
-              <instance_material symbol="GROUND-material" target="#GROUND-material"/>
-            </technique_common>
-          </bind_material>
-        </instance_geometry>
       </node>
       <node id="Cube" name="Cube" type="NODE">
         <matrix sid="transform">1.437839 0.2672338 0 1.06004 -0.2672338 1.437839 0 -1.033788 0 0 1.462462 1.789019 0 0 0 1</matrix>
