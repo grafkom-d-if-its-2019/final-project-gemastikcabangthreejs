@@ -1,28 +1,30 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
 	<title>Login V1</title>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1">
-<!--===============================================================================================-->	
-	<link rel="icon" type="image/png" href="asset/images/icons/favicon.ico"/>
-<!--===============================================================================================-->
+	<!--===============================================================================================-->
+	<link rel="icon" type="image/png" href="asset/images/icons/favicon.ico" />
+	<!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="asset/vendor/bootstrap/css/bootstrap.min.css">
-<!--===============================================================================================-->
+	<!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="asset/fonts/font-awesome-4.7.0/css/font-awesome.min.css">
-<!--===============================================================================================-->
+	<!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="asset/vendor/animate/animate.css">
-<!--===============================================================================================-->	
+	<!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="asset/vendor/css-hamburgers/hamburgers.min.css">
-<!--===============================================================================================-->
+	<!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="asset/vendor/select2/select2.min.css">
-<!--===============================================================================================-->
+	<!--===============================================================================================-->
 	<link rel="stylesheet" type="text/css" href="asset/css/util.css">
 	<link rel="stylesheet" type="text/css" href="asset/css/main.css">
-<!--===============================================================================================-->
+	<!--===============================================================================================-->
 </head>
+
 <body>
-	
+
 	<div class="limiter">
 		<div class="container-login100">
 			<div class="wrap-login100">
@@ -35,16 +37,17 @@
 						Let's Play UwU
 					</span>
 
-					<div class="wrap-input100 validate-input" data-validate = "Valid email is required: ex@abc.xyz">
+					<div class="wrap-input100 validate-input" data-validate="Valid email is required: ex@abc.xyz">
 						<!-- <input class="input100" type="text" name="email" placeholder="Email"> -->
-						<input required="required" name="username" id="username" type="text" class="input100" placeholder="username">
+						<input required="required" name="username" id="username" type="text" class="input100"
+							placeholder="username">
 						<span class="focus-input100"></span>
 						<span class="symbol-input100">
 							<i class="fa fa-user" aria-hidden="true"></i>
 						</span>
 					</div>
 
-					<div class="wrap-input100 validate-input" data-validate = "Game mode is required">
+					<div class="wrap-input100 validate-input" data-validate="Game mode is required">
 						<!-- <input class="input100" type="password" name="room" id="room" placeholder="Room Number"> -->
 						<select class="input100" id="mode" name="mode">
 							<option selected value="1">Single Player</option>
@@ -56,14 +59,14 @@
 						</span>
 					</div>
 
-					<!-- <div class="wrap-input100 validate-input" data-validate = "Room Number is required">
+					<div class="wrap-input100-custom" id="wrap_room" data-validate="Room Number is required">
 						<input class="input100" type="text" name="room" id="room" placeholder="Room Number">
 						<span class="focus-input100"></span>
 						<span class="symbol-input100">
-							<i class="fa fa-lock" aria-hidden="true"></i>
+							<i class="fa fa-numeric" aria-hidden="true"></i>
 						</span>
-					</div> -->
-					
+					</div>
+
 					<div class="container-login100-form-btn">
 						<button class="login100-form-btn">
 							Play
@@ -89,26 +92,34 @@
 			</div>
 		</div>
 	</div>
-	
-	
 
-	
-<!--===============================================================================================-->	
+	<!--===============================================================================================-->
 	<script src="asset/vendor/jquery/jquery-3.2.1.min.js"></script>
-<!--===============================================================================================-->
+	<!--===============================================================================================-->
 	<script src="asset/vendor/bootstrap/js/popper.js"></script>
 	<script src="asset/vendor/bootstrap/js/bootstrap.min.js"></script>
-<!--===============================================================================================-->
+	<!--===============================================================================================-->
 	<script src="asset/vendor/select2/select2.min.js"></script>
-<!--===============================================================================================-->
+	<!--===============================================================================================-->
 	<script src="asset/vendor/tilt/tilt.jquery.min.js"></script>
-	<script >
+	<!--===============================================================================================-->
+	<script src="asset/js/main.js"></script>
+	<script>
+		$(".wrap-input100-custom").css('display', 'none')
 		$('.js-tilt').tilt({
 			scale: 1.1
 		})
+		$("#mode").change(function () {
+			if (this.value == 2) {
+				$(".wrap-input100-custom").css('display', 'inline')
+				$("#room").prop('required', true)
+			} else {
+				$(".wrap-input100-custom").css('display', 'none')
+				$("#room").prop('required', false)
+			}
+		})
 	</script>
-<!--===============================================================================================-->
-	<script src="asset/js/main.js"></script>
 
 </body>
+
 </html>

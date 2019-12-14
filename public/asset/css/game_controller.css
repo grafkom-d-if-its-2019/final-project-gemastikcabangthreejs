@@ -3,11 +3,23 @@
   flex: 0 0 8.333333%;
 }
 
-btn-lg, .btn-group-lg > .btn {
+.btn-lg,
+.btn-group-lg > .btn {
+  padding: 0.5rem 1rem;
+  font-size: 1.25rem;
+  line-height: 3;
+  border-radius: 0.3rem;
+}
 
-    padding: 0.5rem 1rem;
-    font-size: 3rem;
-    line-height: 1.5;
-    border-radius: 0.3rem;
+.btn:active {
+  background-color: #3e8e41;
+  box-shadow: 0 5px #666;
+  transform: translateY(4px);
+}
 
+.wrap-input100-custom {
+  position: relative;
+  width: 100%;
+  z-index: 1;
+  margin-bottom: 10px;
 }
