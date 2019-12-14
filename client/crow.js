@@ -8,8 +8,8 @@ class Crow extends Mesh {
     this.randomPosition();
   }
 
-  animate = () => {
-    this.position.z += SPEED.obstacleZ;
+  animate = deltatime => {
+    this.position.z += SPEED.obstacleZ * deltatime;
   };
 
   outside = () => {

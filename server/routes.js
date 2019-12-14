@@ -5,6 +5,7 @@ router.route("/").get(controller.index);
 router.route("/").post(controller.init);
 
 router.route("/game").get(controller.game);
+router.route("/gamepad").get(controller.gamepad);
 router.route("/error").get(controller.error);
 
 module.exports = router;

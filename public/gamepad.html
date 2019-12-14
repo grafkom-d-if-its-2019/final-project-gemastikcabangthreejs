@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+  <html lang="en">
+  <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Controller</title>
+    <style>
+      .section {
+        height: 100vh;  
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .col {
+        width: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+      }
+      .btn {
+        margin: 10px
+      }
+    </style>
+  </head>
+  <body>
+    <div class="section">
+      <form id="formdata">
+        <input type="text" name="playerId" id="playerId">
+        <small id="msg"></small>
+        <button id="submitbutton" type="submit">Connect</button>
+      </form>
+      <div class="col">
+        <button id="KeyZ" class="btn btn-primary" style="padding: 50px;">Lompat</button>
+        <button id="KeyX" class="btn btn-primary" style="padding: 50px;">Nunduk</button>
+      </div>
+      <div class="col">
+        <button id="ArrowLeft" class="btn btn-primary" style="padding: 50px;">Kiri</button>
+        <button id="ArrowRight" class="btn btn-primary" style="padding: 50px;">Kanan</button>
+        <button id="ArrowUp" class="btn btn-primary" style="padding: 50px;">Maju</button>
+        <button id="ArrowDown" class="btn btn-primary" style="padding: 50px;">Mundur</button>
+      </div>
+    </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+      $(function () {
+        var socket = io("/gamepad", { multiplex: false });
+        var connectedPlayer;
+        var counter;
+        $('#formdata').submit(function(e){
+          e.preventDefault();
+          var id = $("#playerId").val();
+          socket.emit('registerGamepad', id, function(msg, player){
+            console.log("TCL: msg", msg)
+            if (msg == "Success"){
+              connectedPlayer = player;
+              $("#msg").val("Success"); 
+            }else{
+              $("#msg").val("Id Not Found or Rejected");
+            }
+          });
+        })
+        $('button').mousedown(function(){
+          var action = $(this).attr('id');
+          if (action != 'submitbutton'){
+            socket.emit('keyDown', action,connectedPlayer.playerId)
+          }
+        })
+        $('button').mouseup(function(){
+          var action = $(this).attr('id');
+          if (action != 'submitbutton'){
+            console.log("TCL: keyUp")
+            socket.emit('keyUp', action,connectedPlayer.playerId)
+          }
+        })
+      });
+    </script>
+  </body>
+</html>

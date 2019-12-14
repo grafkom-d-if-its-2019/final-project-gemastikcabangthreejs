@@ -44,3 +44,7 @@ exports.game = (req, res) => {
     res.redirect("/error");
   }
 };
+
+exports.gamepad = (req, res) => {
+  res.sendFile(path.resolve("public/gamepad.html"));
+};

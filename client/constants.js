@@ -2,9 +2,21 @@ import {
   BoxGeometry,
   ConeGeometry,
   MeshBasicMaterial,
-  SphereGeometry
-} from "three"; 
+  SphereGeometry,
+  FontLoader
+} from "three";
+import path from "path";
 
+const FONTLOADER = new FontLoader();
+
+const FONT = {};
+
+FONTLOADER.load(
+  path.resolve("client/helvetiker_regular.typeface.json"),
+  function(font) {
+    FONT.helvetiker = font;
+  }
+);
 
 const CONSTANTS = {
   planeLength: 2000,
@@ -30,7 +42,7 @@ const CAMERA = {
   fov: 50
 };
 const SPEED = {
-  obstacleZ: 5
+  obstacleZ: 300
 };
 
 const MATERIALS = {
@@ -61,5 +73,8 @@ GEOMETRY.crow = new SphereGeometry(CONSTANTS.crowWidth, 32, 32);
 MATERIALS.crow = new MeshBasicMaterial({
   color: 0x0000ff
 });
+MATERIALS.basicBlack = new MeshBasicMaterial({
+  color: 0x000000
+});
 
-export { GEOMETRY, MATERIALS, SPEED, CONSTANTS, CAMERA, COLORS };
+export { GEOMETRY, MATERIALS, SPEED, CONSTANTS, CAMERA, COLORS, FONT };

@@ -1,6 +1,7 @@
 var GLOBALS = {
   players: {},
-  rooms: {}
+  rooms: {},
+  gamepad: {}
 };
 
 module.exports = GLOBALS;
