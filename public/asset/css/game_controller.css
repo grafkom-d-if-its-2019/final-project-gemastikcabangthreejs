@@ -1,0 +1,13 @@
+.col-sm-1 {
+  -ms-flex: 0 0 8.333333%;
+  flex: 0 0 8.333333%;
+}
+
+btn-lg, .btn-group-lg > .btn {
+
+    padding: 0.5rem 1rem;
+    font-size: 3rem;
+    line-height: 1.5;
+    border-radius: 0.3rem;
+
+}
