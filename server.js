@@ -68,6 +68,7 @@ io.of("/room").on("connection", function(socket) {
         y: 0,
         z: 0
       },
+      lives: 3,
       room: currentRoom
     };
 

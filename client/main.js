@@ -277,19 +277,18 @@ function detectCollision() {
     cactusHitbox.setFromObject(cactus[j]);
     if (cactusHitbox.intersectsBox(dinoHitbox[0])) {
       alert("cactus collide with player");
-    } 
-    
+    }
   }
   for (var j = 0; j < crows.length; j++) {
     crowHitbox.setFromObject(crows[j]);
     if (crowHitbox.intersectsBox(dinoHitbox[0])) {
       alert("crow collide with player");
-    } 
+    }
   }
   for (var j = 1; j < dinoHitbox.length; j++) {
     if (dinoHitbox[j].intersectsBox(dinoHitbox[0])) {
       alert("dino " + (j + 1) + " collide with player ");
-    } 
+    }
   }
   // console.log(cactusBoxHelper[0]);
   // console.log(cactusHitbox[0]['max']);
@@ -335,7 +334,6 @@ function prepareGame() {
   // scene.add(sky);
 
   SocketHandler.init(scene, camera);
-  
 }
 
 function animate() {
@@ -378,7 +376,7 @@ function animate() {
   Object.keys(SocketHandler.otherPlayers).forEach(id => {
     SocketHandler.otherPlayers[id].dino.animate(deltaTime);
   });
-  
+
   renderer.render(scene, camera);
   date.old = date.new;
   elapsed += deltaTime;
@@ -420,22 +418,25 @@ function startGame() {
 
 function spawnCrow() {
   // window.clearInterval(crowSpawnInterval);
-  var crow;
-  if (unusedCrows.length !== 0) {
-    crow = unusedCrows.shift();
-    crow.randomPosition();
-  } else {
-    crow = new Crow.create();
+  for (var i = 0; i < Math.floor(2 + elapsed / 100); i++) {
+    var crow;
+    if (unusedCrows.length !== 0) {
+      crow = unusedCrows.shift();
+      crow.randomPosition();
+    } else {
+      crow = new Crow.create();
+    }
+    scene.add(crow);
+    crows.push(crow);
   }
-  scene.add(crow);
-  crows.push(crow);
   setTimeout(spawnCrow, Math.max(300, 2000 - elapsed));
+  console.log("TCL: spawnCrow -> elapsed", elapsed);
   // window.setInterval(spawnCrow, Math.max(300, 2000 - elapsed));
 }
 
 function spawnCactus() {
   // window.clearInterval(cactusSpawnInterval);
-  for (var i = 0; i < 3; i++) {
+  for (var i = 0; i < Math.floor(3 + elapsed / 100); i++) {
     if (unusedCactus.length !== 0) {
       var tree = unusedCactus.shift();
       tree.randomPosition();
@@ -462,7 +463,9 @@ function initGame() {
   var checkServer = window.setInterval(() => {
     if (SocketHandler.checkGameReady()) {
       addMountains();
-      dinoHitbox.push(new THREE.Box3().setFromObject(SocketHandler.mainPlayer.dino));
+      dinoHitbox.push(
+        new THREE.Box3().setFromObject(SocketHandler.mainPlayer.dino)
+      );
       Object.keys(SocketHandler.otherPlayers).forEach(id => {
         dinoHitbox.push(new THREE.Box3());
       });

@@ -118,20 +118,11 @@ colladaLoader.load("/client/mountain.dae", function(collada) {
 colladaLoader.load("/client/cactus.dae", function(collada) {
   PROTOTYPE.cactus = collada.scene;
   PROTOTYPE.cactus.visible = false;
-  var daemesh = PROTOTYPE.cactus.children[1].children[0];
+  var daemesh = PROTOTYPE.cactus.children[0].children[0];
   daemesh.material = MATERIALS.cactus;
   daemesh.castShadow = true;
   daemesh.receiveShadow = true;
 });
-// colladaLoader.load("/client/dino.dae", function(collada) {
-//   PROTOTYPE.dino = collada.scene;
-//   PROTOTYPE.dino.visible = false;
-//   console.log("TCL: initLoader -> PROTOTYPE.dino", PROTOTYPE.dino);
-//   var daemesh = PROTOTYPE.dino.children[0].children[0];
-//   daemesh.castShadow = true;
-//   daemesh.receiveShadow = true;
-//   STATUS.loader = true;
-// });
 gltfLoader.load("/client/dino.glb", function(glb) {
   PROTOTYPE.dino = glb.scene.children[0];
   PROTOTYPE.dino.material = MATERIALS.dino;
