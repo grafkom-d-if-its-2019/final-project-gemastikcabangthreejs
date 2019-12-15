@@ -273,25 +273,23 @@ function detectCollision() {
     dinoHitbox[idx].setFromObject(SocketHandler.otherPlayers[id].dino);
     idx++;
   });
-  for (var i = 0; i < dinoHitbox.length; i++) {
-    for (var j = 0; j < cactus.length; j++) {
-      cactusHitbox.setFromObject(cactus[j]);
-      if (cactusHitbox.intersectsBox(dinoHitbox[i])) {
-        alert("cactus collide with player " + (i + 1));
-      } 
-      
-    }
-    for (var j = 0; j < crows.length; j++) {
-      crowHitbox.setFromObject(crows[j]);
-      if (crowHitbox.intersectsBox(dinoHitbox[i])) {
-        alert("crow collide with player " + (i + 1));
-      } 
-    }
-    for (var j = i + 1; j < dinoHitbox.length; j++) {
-      if (dinoHitbox[j].intersectsBox(dinoHitbox[i])) {
-        alert("dino " + (i + 1) + " collide with player " + (j + 1));
-      } 
-    }
+  for (var j = 0; j < cactus.length; j++) {
+    cactusHitbox.setFromObject(cactus[j]);
+    if (cactusHitbox.intersectsBox(dinoHitbox[0])) {
+      alert("cactus collide with player");
+    } 
+    
+  }
+  for (var j = 0; j < crows.length; j++) {
+    crowHitbox.setFromObject(crows[j]);
+    if (crowHitbox.intersectsBox(dinoHitbox[0])) {
+      alert("crow collide with player");
+    } 
+  }
+  for (var j = 1; j < dinoHitbox.length; j++) {
+    if (dinoHitbox[j].intersectsBox(dinoHitbox[0])) {
+      alert("dino " + (j + 1) + " collide with player ");
+    } 
   }
   // console.log(cactusBoxHelper[0]);
   // console.log(cactusHitbox[0]['max']);
@@ -466,7 +464,7 @@ function initGame() {
       addMountains();
       dinoHitbox.push(new THREE.Box3().setFromObject(SocketHandler.mainPlayer.dino));
       Object.keys(SocketHandler.otherPlayers).forEach(id => {
-        dinoHitbox.push(SocketHandler.otherPlayers[id].dino);
+        dinoHitbox.push(new THREE.Box3());
       });
       cactusHitbox = new THREE.Box3();
       crowHitbox = new THREE.Box3();
