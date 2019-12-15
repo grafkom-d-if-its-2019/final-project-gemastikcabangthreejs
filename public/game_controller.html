@@ -26,7 +26,7 @@
         <br>
         <div class="row">
             <!--#1--><div class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none;"></div>
-            <!--#2--><button class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none; min-width: 12%;">JUMP</button>
+            <!--#2--><button id="KeyZ" class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none; min-width: 12%;">JUMP</button>
             <!--#3--><div class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none;"></div>
             <!--#4--><div class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none;"></div>
             <!--#5--><div class="col-xs-1 col-sm-1 col-lg-1 " style="background-color:none;"></div>
@@ -34,28 +34,63 @@
 
             <!--#7--><div class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none;"></div>
             <!--#8--><div class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none; margin-right: 10px;"></div>
-            <!--#9--><button class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none;">&uarr;</button>
+            <!--#9--><button id="ArrowUp" class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none;">&uarr;</button>
             <!--#10--><div class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none;"></div>
             <!--#11--><div class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none;"></div>
             <!--#12--><div class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none;"></div>
         </div>
         <div class="row">
             <!-- #1 --><div class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none;"></div>
-            <!-- #2 --><button class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none; max-width: 12%;">DOWN</button>
+            <!-- #2 --><button id="KeyX" class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none; max-width: 12%;">DOWN</button>
             <!-- #3 --><div class="col-xs-1 col-sm-1 col-lg-1 " style="background-color:none;"></div>
             <!-- #4 --><div class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none;"></div>
             <!-- #5 --><div class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none;"></div>
             <!-- #6 --><div class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none;"></div>
 
             <!-- #8 --><div class="col-xs-1 col-sm-1 col-lg-1 " style="background-color:none;"></div>
-            <!-- #7 --><button class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none; margin-right: 10px;">&larr;</button>
-            <!-- #9 --><button class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none; margin-right: 10px;">&darr;</button>
-            <!-- #11 --><button class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none;">&rarr;</button>
+            <!-- #7 --><button id="ArrowLeft" class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none; margin-right: 10px;">&larr;</button>
+            <!-- #9 --><button id="ArrowDown" class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none; margin-right: 10px;">&darr;</button>
+            <!-- #11 --><button id="ArrowRight" class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none;">&rarr;</button>
             <!-- #10 --><div class="col-xs-1 col-sm-1 col-lg-1 " style="background-color:none;"></div>
             <!-- #12 --><div class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none;"></div>
         </div>
     </div>
     </div>
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
+    <script>
+      $(function () {
+        var socket = io("/gamepad", { multiplex: false });
+        var connectedPlayer;
+        var counter;
+        $('#formdata').submit(function(e){
+          e.preventDefault();
+          var id = $("#playerId").val();
+          socket.emit('registerGamepad', id, function(msg, player){
+            console.log("TCL: msg", msg)
+            if (msg == "Success"){
+              connectedPlayer = player;
+              $("#msg").val("Success"); 
+            }else{
+              $("#msg").val("Id Not Found or Rejected");
+            }
+          });
+        })
+        $('button').mousedown(function(){
+          var action = $(this).attr('id');
+          if (action != 'submitbutton'){
+            socket.emit('keyDown', action,connectedPlayer.playerId)
+          }
+        })
+        $('button').mouseup(function(){
+          var action = $(this).attr('id');
+          if (action != 'submitbutton'){
+            console.log("TCL: keyUp")
+            socket.emit('keyUp', action,connectedPlayer.playerId)
+          }
+        })
+      });
+    </script>
 </body>
 
 </html>

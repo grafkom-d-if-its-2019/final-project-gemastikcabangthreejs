@@ -14,12 +14,12 @@ class Controls {
           };
         case "ArrowUp":
           return dino => {
-            dino.move.z(-50);
+            dino.move.z(-100);
             dino.velocityMultiplier.z = 1;
           };
         case "ArrowDown":
           return dino => {
-            dino.move.z(50);
+            dino.move.z(100);
             dino.velocityMultiplier.z = 1;
           };
         case "KeyZ":
@@ -31,7 +31,9 @@ class Controls {
             dino.duck();
           };
         default:
-          return dino => {};
+          return dino => {
+            return;
+          };
       }
     },
     keyUp: action => {
@@ -53,7 +55,9 @@ class Controls {
             dino.velocityMultiplier.z = 0.9;
           };
         default:
-          return dino => {};
+          return dino => {
+            return;
+          };
       }
     }
   };

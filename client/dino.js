@@ -1,11 +1,18 @@
 import { Mesh, TextGeometry, FontLoader } from "three";
-import { GEOMETRY, MATERIALS, CONSTANTS, FONT, CAMERA } from "./constants";
+import {
+  GEOMETRY,
+  MATERIALS,
+  CONSTANTS,
+  FONT,
+  CAMERA,
+  PROTOTYPE
+} from "./constants";
 import { roundDecimal } from "./utils";
 
 class Dino extends Mesh {
   constructor(playerId, username) {
     console.log("TCL: Dino -> constructor -> playerId", playerId);
-    super(GEOMETRY.dino, MATERIALS.dino);
+    super(PROTOTYPE.dino.geometry, PROTOTYPE.dino.material);
     this.position.x = 0;
     this.position.y = 0;
     this.position.z = 0;
@@ -28,6 +35,9 @@ class Dino extends Mesh {
     };
     this.playerId = playerId;
     this.username = username;
+    this.castShadow = true;
+    this.receiveShadow = true;
+    this.box;
   }
 
   roundSpeed = () => {
@@ -41,10 +51,9 @@ class Dino extends Mesh {
   };
 
   moveZ = z => {
-    this.speed.z += z;
+    this.speed.z = z;
     if (this.position.z > 0) this.position.z = 0;
     if (this.position.z < -CAMERA.far / 8) this.position.z = -CAMERA.far / 8;
-    this.roundSpeed();
   };
 
   jump = () => {
@@ -52,12 +61,10 @@ class Dino extends Mesh {
       this.speed.y = CONSTANTS.bounceAdd;
       this.status.jumping = true;
     }
-    this.roundSpeed();
   };
 
   duck = () => {
     this.speed.y = -CONSTANTS.bounceAdd;
-    this.roundSpeed();
   };
 
   updateX = deltaTime => {
@@ -75,8 +82,8 @@ class Dino extends Mesh {
   };
 
   updateY = deltaTime => {
-    this.position.y += this.speed.y;
-    this.speed.y -= CONSTANTS.gravity;
+    this.position.y += this.speed.y * deltaTime;
+    this.speed.y -= CONSTANTS.gravity * deltaTime;
 
     if (this.position.y <= 0) {
       this.status.jumping = false;

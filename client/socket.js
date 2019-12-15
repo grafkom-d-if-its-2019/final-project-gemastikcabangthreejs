@@ -8,6 +8,8 @@ class SocketHandler {
   static mainPlayer;
   static otherPlayers = {};
   static randomSeed = undefined;
+  static mode = 1;
+  static doneLoading;
 
   static init = (scene, camera) => {
     var url = window.location.href.slice(window.location.href.indexOf("?") + 1);
@@ -37,8 +39,9 @@ class SocketHandler {
   static requestHandshake = value => {
     this.randomSeed = value.randomSeed;
     this.rng = seedrandom(this.randomSeed);
+    this.mode = value.mode;
     Object.keys(value.players).forEach(id => {
-      value.players[id].dino = new Dino(id, value.players[id].username);
+      value.players[id].dino = new Dino(id, value.players[id].playerName);
       value.players[id].dino.position.x = value.players[id].position.x;
       value.players[id].dino.position.y = value.players[id].position.y;
       value.players[id].dino.position.z = value.players[id].position.z;
@@ -54,7 +57,7 @@ class SocketHandler {
   };
 
   static newPlayer = player => {
-    player.dino = new Dino();
+    player.dino = new Dino(player.playerId, player.playerName);
     player.dino.position.x = player.position.x;
     player.dino.position.y = player.position.y;
     player.dino.position.z = player.position.z;
@@ -72,7 +75,8 @@ class SocketHandler {
   };
 
   static playerMoved = action => {
-    Controls.dino(action.type)(action.key)(
+    console.log("TCL: SocketHandler -> action", action);
+    Controls.dino[action.type](action.key)(
       this.otherPlayers[action.player.playerId].dino
     );
     // this.otherPlayers[player.playerId].dino.speed.x = player.speed.x;
@@ -81,7 +85,7 @@ class SocketHandler {
   };
 
   static randomNumber = (min, max) => {
-    return Math.floor(this.rng() * (max - min + 1)) + min;
+    return Math.floor(this.rng() * (max - min)) + min;
   };
 
   static gamepadKeyDown = event => {

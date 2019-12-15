@@ -1,80 +1,93 @@
 <!DOCTYPE html>
-  <html lang="en">
-  <head>
+<html lang="en">
+
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
-    <title>Controller</title>
-    <style>
-      .section {
-        height: 100vh;  
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-      .col {
-        width: 50%;
-        display: flex;
-        justify-content: center;
-        align-items: center;
-      }
-      .btn {
-        margin: 10px
-      }
-    </style>
-  </head>
-  <body>
-    <div class="section">
-      <form id="formdata">
-        <input type="text" name="playerId" id="playerId">
-        <small id="msg"></small>
-        <button id="submitbutton" type="submit">Connect</button>
-      </form>
-      <div class="col">
-        <button id="KeyZ" class="btn btn-primary" style="padding: 50px;">Lompat</button>
-        <button id="KeyX" class="btn btn-primary" style="padding: 50px;">Nunduk</button>
-      </div>
-      <div class="col">
-        <button id="ArrowLeft" class="btn btn-primary" style="padding: 50px;">Kiri</button>
-        <button id="ArrowRight" class="btn btn-primary" style="padding: 50px;">Kanan</button>
-        <button id="ArrowUp" class="btn btn-primary" style="padding: 50px;">Maju</button>
-        <button id="ArrowDown" class="btn btn-primary" style="padding: 50px;">Mundur</button>
-      </div>
+    <title>Document</title>
+    <link rel="stylesheet" href="asset/vendor/bootstrap/css/bootstrap.css">
+    <link rel="stylesheet" href="asset/css/game_controller.css">
+</head>
+
+<body>
+    <div class="container-fluid">
+        <br>
+        <div class="row">
+            <div class="col-xs-1 col-sm-1 col-lg-1"></div>
+            <div class="col-xs-10 col-sm-10 col-lg-10">
+                <form id="formdata">
+                    <input disabled id="gamepadid" class="form-control" type="text" name="playerId" id="playerId">
+                    <small id="msg"></small>
+                </form>
+            </div>
+        </div>
+        <br>
+        <div class="row">
+            <!--#1--><div class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none;"></div>
+            <!--#2--><button id="KeyZ" class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none; min-width: 12%;">JUMP</button>
+            <!--#3--><div class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none;"></div>
+            <!--#4--><div class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none;"></div>
+            <!--#5--><div class="col-xs-1 col-sm-1 col-lg-1 " style="background-color:none;"></div>
+            <!--#6--><div class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none;"></div>
+
+            <!--#7--><div class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none;"></div>
+            <!--#8--><div class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none; margin-right: 10px;"></div>
+            <!--#9--><button id="ArrowUp" class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none;">&uarr;</button>
+            <!--#10--><div class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none;"></div>
+            <!--#11--><div class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none;"></div>
+            <!--#12--><div class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none;"></div>
+        </div>
+        <div class="row">
+            <!-- #1 --><div class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none;"></div>
+            <!-- #2 --><button id="KeyX" class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none; max-width: 12%;">DOWN</button>
+            <!-- #3 --><div class="col-xs-1 col-sm-1 col-lg-1 " style="background-color:none;"></div>
+            <!-- #4 --><div class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none;"></div>
+            <!-- #5 --><div class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none;"></div>
+            <!-- #6 --><div class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none;"></div>
+
+            <!-- #8 --><div class="col-xs-1 col-sm-1 col-lg-1 " style="background-color:none;"></div>
+            <!-- #7 --><button id="ArrowLeft" class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none; margin-right: 10px;">&larr;</button>
+            <!-- #9 --><button id="ArrowDown" class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none; margin-right: 10px;">&darr;</button>
+            <!-- #11 --><button id="ArrowRight" class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none;">&rarr;</button>
+            <!-- #10 --><div class="col-xs-1 col-sm-1 col-lg-1 " style="background-color:none;"></div>
+            <!-- #12 --><div class="col-xs-1 col-sm-1 col-lg-1 btn btn-lg" style="background-color:none;"></div>
+        </div>
+    </div>
     </div>
     <script src="/socket.io/socket.io.js"></script>
     <script src="https://code.jquery.com/jquery-1.11.1.js"></script>
     <script>
       $(function () {
         var socket = io("/gamepad", { multiplex: false });
-        var connectedPlayer;
-        var counter;
-        $('#formdata').submit(function(e){
-          e.preventDefault();
-          var id = $("#playerId").val();
-          socket.emit('registerGamepad', id, function(msg, player){
-            console.log("TCL: msg", msg)
-            if (msg == "Success"){
-              connectedPlayer = player;
-              $("#msg").val("Success"); 
-            }else{
-              $("#msg").val("Id Not Found or Rejected");
+        var interval;
+        socket.on('connect' , () => {
+          var id = "GamepadID = " + socket.id.replace("/gamepad#", "");
+          $("#gamepadid").val(id);
+          var counter;
+          socket.on("userConnect", function(playerId){
+            $("#msg").text("a user connected");
+          })
+          $('button').on("mousedown touchstart", function(){
+            var action = $(this).attr('id');
+            if (action != 'submitbutton'){
+              socket.emit('keyDown', action, socket.id)
+              counter = window.setInterval(function(){
+                socket.emit('keyDown', action, socket.id)
+              }, 30)
             }
-          });
-        })
-        $('button').mousedown(function(){
-          var action = $(this).attr('id');
-          if (action != 'submitbutton'){
-            socket.emit('keyDown', action,connectedPlayer.playerId)
-          }
-        })
-        $('button').mouseup(function(){
-          var action = $(this).attr('id');
-          if (action != 'submitbutton'){
-            console.log("TCL: keyUp")
-            socket.emit('keyUp', action,connectedPlayer.playerId)
-          }
-        })
+          })
+          $('button').on("mouseup touchend",function(){
+            var action = $(this).attr('id');
+            if (action != 'submitbutton'){
+              console.log("TCL: keyUp")
+              window.clearInterval(counter)
+              socket.emit('keyUp', action, socket.id)
+            }
+          })
+        });
       });
     </script>
-  </body>
+</body>
+
 </html>

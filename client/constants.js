@@ -3,9 +3,15 @@ import {
   ConeGeometry,
   MeshBasicMaterial,
   SphereGeometry,
-  FontLoader
+  FontLoader,
+  MeshStandardMaterial,
+  MeshDepthMaterial,
+  MeshLambertMaterial,
+  GLTF
 } from "three";
 import path from "path";
+var ColladaLoader = require("three-collada-loader");
+import GLTFLoader from "three-gltf-loader";
 
 const FONTLOADER = new FontLoader();
 
@@ -26,10 +32,10 @@ const CONSTANTS = {
   treeWidth: 2,
   crowLimit: {
     lowerBound: 5,
-    upperBound: 20
+    upperBound: 25
   },
-  bounceAdd: 6,
-  gravity: 0.5,
+  bounceAdd: 250,
+  gravity: 800,
   velocityMultiplier: 0.9
 };
 const COLORS = {
@@ -57,24 +63,98 @@ const GEOMETRY = {
   dino: null
 };
 
+const PROTOTYPE = {
+  dino: null,
+  crow: null,
+  cactus: null,
+  mountain: null
+};
+
+const STATUS = {
+  loader: false
+};
+
 GEOMETRY.dino = new BoxGeometry(
   CONSTANTS.dinoWidth,
   CONSTANTS.dinoWidth,
   CONSTANTS.dinoWidth
 );
-MATERIALS.dino = new MeshBasicMaterial({
-  color: 0xffff00
+MATERIALS.dino = new MeshStandardMaterial({
+  color: 0x000000
 });
 GEOMETRY.tree = new ConeGeometry(CONSTANTS.treeWidth, CONSTANTS.treeWidth, 30);
-MATERIALS.tree = new MeshBasicMaterial({
+MATERIALS.tree = new MeshStandardMaterial({
   color: 0x0000ff
 });
+MATERIALS.cactus = new MeshLambertMaterial({
+  color: 0x36993f
+});
+MATERIALS.mountains = new MeshLambertMaterial();
+MATERIALS.mountains.color.setRGB(
+  0.403921568627451,
+  0.3215686274509804,
+  0.20392156862745098
+);
 GEOMETRY.crow = new SphereGeometry(CONSTANTS.crowWidth, 32, 32);
-MATERIALS.crow = new MeshBasicMaterial({
+MATERIALS.crow = new MeshStandardMaterial({
   color: 0x0000ff
 });
 MATERIALS.basicBlack = new MeshBasicMaterial({
   color: 0x000000
 });
 
-export { GEOMETRY, MATERIALS, SPEED, CONSTANTS, CAMERA, COLORS, FONT };
+var colladaLoader = new ColladaLoader();
+var gltfLoader = new GLTFLoader();
+
+colladaLoader.load("/client/mountain.dae", function(collada) {
+  PROTOTYPE.mountain = collada.scene;
+  PROTOTYPE.mountain.visible = false;
+  PROTOTYPE.mountain.position.y += 10;
+  var daemesh = PROTOTYPE.mountain.children[0].children[0];
+  daemesh.material = MATERIALS.mountains;
+  daemesh.castShadow = true;
+  daemesh.receiveShadow = true;
+});
+colladaLoader.load("/client/cactus.dae", function(collada) {
+  PROTOTYPE.cactus = collada.scene;
+  PROTOTYPE.cactus.visible = false;
+  var daemesh = PROTOTYPE.cactus.children[1].children[0];
+  daemesh.material = MATERIALS.cactus;
+  daemesh.castShadow = true;
+  daemesh.receiveShadow = true;
+});
+// colladaLoader.load("/client/dino.dae", function(collada) {
+//   PROTOTYPE.dino = collada.scene;
+//   PROTOTYPE.dino.visible = false;
+//   console.log("TCL: initLoader -> PROTOTYPE.dino", PROTOTYPE.dino);
+//   var daemesh = PROTOTYPE.dino.children[0].children[0];
+//   daemesh.castShadow = true;
+//   daemesh.receiveShadow = true;
+//   STATUS.loader = true;
+// });
+gltfLoader.load("/client/dino.glb", function(glb) {
+  PROTOTYPE.dino = glb.scene.children[0];
+  PROTOTYPE.dino.material = MATERIALS.dino;
+  PROTOTYPE.dino.castShadow = true;
+  PROTOTYPE.dino.receiveShadow = true;
+});
+gltfLoader.load("/client/crow.glb", function(glb) {
+  PROTOTYPE.crow = glb.scene.children[0];
+  console.log("TCL: PROTOTYPE.crow", PROTOTYPE.crow);
+  // PROTOTYPE.dino.crow = MATERIALS.crow;
+  PROTOTYPE.dino.castShadow = true;
+  PROTOTYPE.dino.receiveShadow = true;
+  STATUS.loader = true;
+});
+
+export {
+  GEOMETRY,
+  MATERIALS,
+  SPEED,
+  CONSTANTS,
+  CAMERA,
+  COLORS,
+  FONT,
+  PROTOTYPE,
+  STATUS
+};

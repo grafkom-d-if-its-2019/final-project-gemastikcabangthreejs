@@ -15,6 +15,7 @@ exports.init = (req, res) => {
   var username = req.body.username;
   var newId = nanoid(10);
   var room = req.body.room || newId;
+  var gamepad = req.body.gamepad;
   console.log("TCL: exports.init -> room", room);
   if (room === newId) {
     GLOBALS.rooms[room] = new Room(room, req.body.mode);
@@ -23,15 +24,18 @@ exports.init = (req, res) => {
       req.body.mode
     );
   }
-  res.redirect(
+  var url =
     "/game?" +
-      "username=" +
-      username +
-      "&mode=" +
-      req.body.mode +
-      "&room=" +
-      room
-  );
+    "username=" +
+    username +
+    "&mode=" +
+    req.body.mode +
+    "&room=" +
+    room;
+  if (!!gamepad) {
+    url += "&gamepad=" + gamepad;
+  }
+  res.redirect(url);
 };
 
 exports.game = (req, res) => {

@@ -1,25 +1,37 @@
 import { Mesh } from "three";
-import { GEOMETRY, MATERIALS, CONSTANTS, SPEED, CAMERA } from "./constants";
+import {
+  GEOMETRY,
+  MATERIALS,
+  CONSTANTS,
+  SPEED,
+  CAMERA,
+  PROTOTYPE
+} from "./constants";
 import SocketHandler from "./socket";
 
-class Crow extends Mesh {
-  constructor() {
-    super(GEOMETRY.crow, MATERIALS.crow);
-    this.randomPosition();
-  }
-
-  animate = deltatime => {
-    this.position.z += SPEED.obstacleZ * deltatime;
+class Crow {
+  static create = () => {
+    var object = PROTOTYPE.crow.clone();
+    console.log("TCL: Crow -> create -> object", object);
+    object.animate = this.animate.bind(object);
+    object.outside = this.outside.bind(object);
+    object.randomPosition = this.randomPosition.bind(object);
+    object.randomPosition();
+    return object;
   };
 
-  outside = () => {
+  static animate(deltatime) {
+    this.position.z += SPEED.obstacleZ * deltatime;
+  }
+
+  static outside() {
     if (this.position.z > CAMERA.fov + CAMERA.near) {
       return true;
     }
     return false;
-  };
+  }
 
-  randomPosition = () => {
+  static randomPosition() {
     this.position.z = -CONSTANTS.planeLength;
     this.position.y = SocketHandler.randomNumber(
       CONSTANTS.crowLimit.lowerBound,
@@ -29,7 +41,7 @@ class Crow extends Mesh {
       -CONSTANTS.planeWidth / 2,
       CONSTANTS.planeWidth / 2
     );
-  };
+  }
 }
 
 export default Crow;

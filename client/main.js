@@ -17,7 +17,9 @@ import {
   CONSTANTS,
   SPEED,
   CAMERA,
-  COLORS
+  COLORS,
+  STATUS,
+  PROTOTYPE
 } from "./constants";
 import OrbitControls from "three-orbitcontrols";
 import Controls from "./controls";
@@ -38,16 +40,16 @@ var skyTexture = {};
 var directionalLight = {};
 var hemisphereLight = {};
 var loader;
-var prototype = {
-  cactus: null,
-  mountain: null
-};
+
 var loading = 0;
 
 var date;
 
 function createScene() {
   scene = new THREE.Scene();
+  const loader = new THREE.TextureLoader();
+  const bgTexture = loader.load("client/sky.jpg");
+  scene.background = bgTexture;
 
   camera = new THREE.PerspectiveCamera(
     CAMERA.fov,
@@ -56,6 +58,8 @@ function createScene() {
     CAMERA.far
   );
   renderer = new THREE.WebGLRenderer({ antialias: true });
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
   // controls = new OrbitControls(camera, renderer.domElement);
 
   renderer.setSize(window.innerWidth - 20, window.innerHeight - 10);
@@ -71,13 +75,50 @@ function createScene() {
 function addLight() {
   var light = new THREE.HemisphereLight(0xffffff, 0xffffff, 0.5);
   scene.add(light);
-  var directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-  directionalLight.position.set(0, 1, 0);
-  scene.add(directionalLight);
+
+  var ambientLight = new THREE.AmbientLight(0x404040);
+  scene.add(ambientLight);
+
+  var pointLight = new THREE.SpotLight(0xffffff, 1, 10000, 2);
+  pointLight.position.x = 0;
+  pointLight.position.y = 250;
+  pointLight.position.z = 200;
+  pointLight.castShadow = true;
+  scene.add(pointLight);
+
+  var pointLightHelper = new THREE.PointLightHelper(pointLight, 10);
+  scene.add(pointLightHelper);
+
+  // var directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
+  // directionalLight.position.set(-0.5, 1.75, 1);
+  // directionalLight.position.multiplyScalar(30);
+  // directionalLight.castShadow = true;
+  // scene.add(directionalLight);
+  // directionalLight.shadow.mapSize.width = 2048;
+  // directionalLight.shadow.mapSize.height = 2048;
+  // directionalLight.shadow.camera.near = 0.1;
+  // directionalLight.shadow.camera.far = 2000;
+  // var dirlightHelper = new THREE.DirectionalLightHelper(directionalLight, 10);
+  // scene.add(dirlightHelper);
+}
+
+function addSky() {
+  var skyGeo = new THREE.SphereGeometry(10, 25, 25);
+  var loader = new THREE.TextureLoader(),
+    texture = loader.load("client/sky.jpg");
+  var material = new THREE.MeshPhongMaterial({
+    map: texture
+  });
+  var sky = new THREE.Mesh(skyGeo, material);
+  sky.material.side = THREE.BackSide;
+  sky.position.x = 0;
+  sky.position.y = 0;
+  sky.position.z = 0;
+  scene.add(sky);
 }
 
 function addPlane() {
-  var material = new THREE.MeshPhongMaterial({
+  var material = new THREE.MeshStandardMaterial({
     color: COLORS.ground
   });
   var geometry = new THREE.BoxGeometry(
@@ -91,23 +132,8 @@ function addPlane() {
   plane.position.x = 0;
   plane.position.y = -5;
   plane.position.z = -CONSTANTS.planeLength / 2 + CAMERA.fov;
+  plane.receiveShadow = true;
   scene.add(plane);
-}
-
-function initLoader() {
-  loader = new ColladaLoader();
-  loader.load("/client/mountain.dae", function(collada) {
-    prototype.mountain = collada.scene;
-    prototype.mountain.visible = false;
-    loading += 1;
-  });
-  loader.load("/client/cactus.dae", function(collada) {
-    prototype.cactus = collada.scene;
-    prototype.cactus.visible = false;
-    console.log("TCL: initLoader -> prototype", prototype);
-    console.log("TCL: initLoader -> loading", loading);
-    loading += 1;
-  });
 }
 
 function createLandscapeFloors() {
@@ -122,16 +148,18 @@ function createLandscapeFloors() {
     1
   );
   planeLeftMaterial = new THREE.MeshLambertMaterial({
-    color: 0x8bc34a
+    color: 0xe8db74
   });
   planeLeft = new THREE.Mesh(planeLeftGeometry, planeLeftMaterial);
   planeLeft.receiveShadow = true;
   planeLeft.rotation.x = 1.57;
   planeLeft.position.x = -2 * CONSTANTS.planeWidth;
   planeLeft.position.y = -4;
+  planeLeft.position.z = -CONSTANTS.planeLength / 2 + CAMERA.fov;
 
   planeRight = planeLeft.clone();
   planeRight.position.x = 2 * CONSTANTS.planeWidth;
+  planeRight.position.z = -CONSTANTS.planeLength / 2 + CAMERA.fov;
 
   scene.add(planeLeft, planeRight);
 }
@@ -142,7 +170,7 @@ function createCactus(i) {
     objectDimensionY = {},
     objectDimensionZ = {};
 
-  object = prototype.cactus.clone();
+  object = PROTOTYPE.cactus.clone();
   objectDimensionX = 5;
   objectDimensionY = 5;
   objectDimensionZ = 5;
@@ -153,7 +181,7 @@ function createCactus(i) {
   object.visible = true;
 
   object.randomPosition = function() {
-    object.position.x = randomNumber(
+    object.position.x = SocketHandler.randomNumber(
       -CONSTANTS.planeWidth / 2,
       CONSTANTS.planeWidth / 2
     );
@@ -163,10 +191,7 @@ function createCactus(i) {
   };
 
   object.outside = function() {
-    if (
-      object.position.z <
-      CONSTANTS.planeLength / 2 - CONSTANTS.planeLength / 10
-    ) {
+    if (object.position.z < CAMERA.fov + CAMERA.near) {
       return false;
     }
     return true;
@@ -183,6 +208,7 @@ function createCactus(i) {
     }
   };
   object.randomPosition();
+
   cactus.push(object);
   scene.add(object);
 
@@ -190,7 +216,7 @@ function createCactus(i) {
   //   var material = new THREE.MeshNormalMaterial()
   //   var mesh = new THREE.Mesh(geometry, material)
   //   prototype = mesh;
-  //   prototype.visible = false;
+  //   PROTOTYPE.visible = false;
   //   createObject();
   // })
 }
@@ -201,11 +227,7 @@ function createMountain(i, isEast, layer) {
     objectDimensionY = {},
     objectDimensionZ = {};
 
-  object = prototype.mountain.clone();
-  objectDimensionX = Math.random() * 0.25 + 0.05;
-  objectDimensionY = Math.random() * 0.75;
-  objectDimensionZ = objectDimensionX;
-  object.scale.set(objectDimensionX, objectDimensionY, objectDimensionZ);
+  object = PROTOTYPE.mountain.clone();
 
   if (isEast === true) {
     object.position.x = CONSTANTS.planeWidth * layer;
@@ -220,26 +242,27 @@ function createMountain(i, isEast, layer) {
 
   object.visible = true;
 
+  object.randomDimension = function() {
+    objectDimensionX = randomNumber(0, 1) * 0.25 + 0.05;
+    objectDimensionY = randomNumber(0.4, 1) * 0.75;
+    objectDimensionZ = objectDimensionX;
+    object.scale.set(objectDimensionX, objectDimensionY, objectDimensionZ);
+  };
+
   object.animate = function(deltaTime) {
-    if (
-      object.position.z <
-      CONSTANTS.planeLength / 2 - CONSTANTS.planeLength / 10
-    ) {
+    if (object.position.z < CAMERA.fov + CAMERA.near) {
       object.position.z += 300 * deltaTime;
     } else {
       object.position.z = -CONSTANTS.planeLength / 2;
+      object.randomDimension();
     }
   };
-
+  object.randomDimension();
   mountains.push(object);
   scene.add(object);
 }
 
-function prepareGame() {
-  console.log("TCL: prepareGame -> prepareGame");
-  addLight();
-  addPlane();
-  createLandscapeFloors();
+function addMountains() {
   for (var layer = 1; layer < 4; layer += 1) {
     for (var i = 0; i < 60; i += 1) {
       var isEast = false;
@@ -249,29 +272,32 @@ function prepareGame() {
       createMountain(i, isEast, layer);
     }
   }
+}
+
+function prepareGame() {
+  console.log("TCL: prepareGame -> prepareGame");
+  // addSky();
+  addLight();
+  addPlane();
+  createLandscapeFloors();
   var canvas = document.getElementsByTagName("canvas")[0];
-  skyGeometry = new THREE.BoxGeometry(
-    canvas.width + canvas.width / 5,
-    canvas.height,
-    1,
-    1
-  );
-  skyMaterial = new THREE.MeshBasicMaterial({
-    map: new THREE.TextureLoader().load(
-      "https://s3-us-west-2.amazonaws.com/s.cdpn.io/26757/background.jpg"
-    ),
-    depthWrite: false,
-    side: THREE.BackSide
-  });
-  sky = new THREE.Mesh(skyGeometry, skyMaterial);
-  sky.position.y = 300;
-  sky.position.z = -CONSTANTS.planeLength / 2 + (CONSTANTS.planeWidth * 5) / 2;
-  scene.add(sky);
-  directionalLight = new THREE.DirectionalLight(0xffffff, 1);
-  directionalLight.position.set(0, 40, 0);
-  hemisphereLight = new THREE.HemisphereLight(0xffb74d, 0x37474f, 1);
-  hemisphereLight.position.y = 500;
-  scene.add(hemisphereLight, directionalLight);
+  // skyGeometry = new THREE.BoxGeometry(
+  //   canvas.width + canvas.width / 5,
+  //   canvas.height,
+  //   1,
+  //   1
+  // );
+  // skyMaterial = new THREE.MeshBasicMaterial({
+  //   map: new THREE.TextureLoader().load(
+  //     "https://s3-us-west-2.amazonaws.com/s.cdpn.io/26757/background.jpg"
+  //   ),
+  //   depthWrite: false,
+  //   side: THREE.BackSide
+  // });
+  // sky = new THREE.Mesh(skyGeometry, skyMaterial);
+  // sky.position.y = 300;
+  // sky.position.z = -CONSTANTS.planeLength / 2 + (CONSTANTS.planeWidth * 5) / 2;
+  // scene.add(sky);
 
   SocketHandler.init(scene, camera);
 }
@@ -361,12 +387,11 @@ function spawnCrow() {
     crow = unusedCrows.shift();
     crow.randomPosition();
   } else {
-    crow = new Crow();
+    crow = new Crow.create();
   }
   scene.add(crow);
   crows.push(crow);
   setTimeout(spawnCrow, Math.max(300, 2000 - elapsed));
-  console.log("TCL: spawnCrow -> elapsed", elapsed);
   // window.setInterval(spawnCrow, Math.max(300, 2000 - elapsed));
 }
 
@@ -379,7 +404,6 @@ function spawnCactus() {
       cactus.push(tree);
       scene.add(tree);
     } else {
-      console.log("TCL: spawnCactus -> i", i);
       createCactus(i);
     }
   }
@@ -389,10 +413,8 @@ function spawnCactus() {
 
 function initGame() {
   createScene();
-  initLoader();
   var checkLoading = window.setInterval(() => {
-    console.log("TCL: initGame -> loading", loading);
-    if (loading == 2) {
+    if (STATUS.loader == true) {
       prepareGame();
       clearInterval(checkLoading);
     }
@@ -401,6 +423,7 @@ function initGame() {
   document.addEventListener("keyup", onKeyUp);
   var checkServer = window.setInterval(() => {
     if (SocketHandler.checkGameReady()) {
+      addMountains();
       startGame();
       date = {
         old: Date.now(),

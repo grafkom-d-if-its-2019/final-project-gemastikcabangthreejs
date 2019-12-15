@@ -42,6 +42,7 @@
     "socket.io-client": "^2.3.0",
     "three": "^0.111.0",
     "three-collada-loader": "0.0.1",
+    "three-gltf-loader": "^1.111.0",
     "three-orbitcontrols": "^2.110.1",
     "three-stl-loader": "^1.0.6",
     "vinyl-buffer": "^1.0.1",

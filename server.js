@@ -45,7 +45,15 @@ io.of("/room").on("connection", function(socket) {
    * Init
    */
   var currentRoom = socket.handshake.query.room;
+  var gamepad = "/gamepad#" + socket.handshake.query.gamepad;
+  console.log("TCL: gamepad", gamepad);
   socket.join(currentRoom, function() {
+    if (!!gamepad && !!GLOBALS.gamepad[gamepad]) {
+      GLOBALS.gamepad[gamepad].playerId = socket.id;
+      io.of("/gamepad")
+        .to(gamepad)
+        .emit("userConnect", socket.id);
+    }
     GLOBALS.players[socket.id] = {
       alive: true,
       playerId: socket.id,
@@ -68,7 +76,8 @@ io.of("/room").on("connection", function(socket) {
      */
     var requestHandshake = {
       randomSeed: randomSeed,
-      players: {}
+      players: {},
+      mode: socket.handshake.query.mode
     };
     GLOBALS.rooms[currentRoom].addPlayers(socket.id);
     Object.keys(GLOBALS.rooms[currentRoom].players).forEach(playerId => {
@@ -89,14 +98,9 @@ io.of("/room").on("connection", function(socket) {
     socket.on("acknowledge", function() {
       var ready = GLOBALS.rooms[currentRoom].roomReady();
       if (ready === true) {
-        console.log("TCL: ready", ready);
         socket.emit("roomReady", true);
         socket.to(GLOBALS.players[socket.id].room).emit("roomReady", true);
         GLOBALS.rooms[currentRoom].setPlay();
-        console.log(
-          "TCL: GLOBALS.rooms[currentRoom]",
-          GLOBALS.rooms[currentRoom]
-        );
       }
     });
 
@@ -113,7 +117,6 @@ io.of("/room").on("connection", function(socket) {
      * Movement player
      */
     socket.on("playerMovement", function(payload) {
-      console.log("TCL: payload", payload);
       var playerId = payload.player.playerId;
       socket.to(GLOBALS.players[playerId].room).emit("playerMoved", payload);
     });
@@ -121,42 +124,38 @@ io.of("/room").on("connection", function(socket) {
 });
 
 io.of("/gamepad").on("connection", function(socket) {
-  socket.on("registerGamepad", function(id, ack) {
-    id = "/room#" + id;
-    console.log("TCL: registerGamepad", id);
-    if (GLOBALS.players[id] != undefined) {
-      GLOBALS.players[id].gamepad = socket.id;
-      GLOBALS.gamepad[id] = {
-        id: socket.id,
-        player: GLOBALS.players[id]
-      };
-      ack("Success", GLOBALS.players[id]);
-    } else {
-      ack("Fail");
-    }
+  GLOBALS.gamepad[socket.id] = {
+    playerId: null
+  };
+
+  socket.on("userConnect", function(playerId) {
+    console.log("TCL: playerId", playerId);
+    socket.emit("userConnect", playerId);
   });
 
   socket.on("keyUp", function(action, id) {
-    var playerId = id;
+    var playerId = GLOBALS.gamepad[socket.id].playerId;
     var payload = {
       id: playerId,
       action: action
     };
-    console.log("TCL: payload", payload);
-    io.of("/room")
-      .to(playerId)
-      .emit("gamepadKeyUp", payload);
+    if (playerId !== null) {
+      io.of("/room")
+        .to(playerId)
+        .emit("gamepadKeyUp", payload);
+    }
   });
 
   socket.on("keyDown", function(action, id) {
-    var playerId = id;
+    var playerId = GLOBALS.gamepad[socket.id].playerId;
     var payload = {
       id: playerId,
       action: action
     };
-    console.log("TCL: payload", payload);
-    io.of("/room")
-      .to(playerId)
-      .emit("gamepadKeyDown", payload);
+    if (playerId !== null) {
+      io.of("/room")
+        .to(playerId)
+        .emit("gamepadKeyDown", payload);
+    }
   });
 });
