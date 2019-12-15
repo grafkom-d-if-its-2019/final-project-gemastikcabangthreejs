@@ -11,7 +11,6 @@ import { roundDecimal } from "./utils";
 
 class Dino extends Mesh {
   constructor(playerId, username) {
-    console.log("TCL: Dino -> constructor -> playerId", playerId);
     super(PROTOTYPE.dino.geometry, PROTOTYPE.dino.material);
     this.position.x = 0;
     this.position.y = 0;
@@ -65,6 +64,16 @@ class Dino extends Mesh {
 
   duck = () => {
     this.speed.y = -CONSTANTS.bounceAdd;
+  };
+
+  changeToDuck = () => {
+    this.geometry.dispose();
+    this.geometry = PROTOTYPE.dino2.geometry;
+  };
+
+  changeToStand = () => {
+    this.geometry.dispose();
+    this.geometry = PROTOTYPE.dino.geometry;
   };
 
   updateX = deltaTime => {

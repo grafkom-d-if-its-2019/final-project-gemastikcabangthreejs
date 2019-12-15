@@ -34,20 +34,15 @@ var unusedCrows = [];
 var crows = [];
 var mountains = [];
 var cactus = [];
-var sky = {};
-var skyGeometry = {};
-var skyMaterial = {};
-var skyTexture = {};
-var directionalLight = {};
-var hemisphereLight = {};
-var loader;
-
-var loading = 0;
+var immuneCactus = [];
+var immuneCrow = [];
 
 var date;
-var dinoHitbox = [];
+var dinoHitbox = {};
 var cactusHitbox;
 var crowHitbox;
+var hitSpotlight;
+var hitStatus = false;
 
 function createScene() {
   scene = new THREE.Scene();
@@ -64,7 +59,7 @@ function createScene() {
   renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  // controls = new OrbitControls(camera, renderer.domElement);
+  controls = new OrbitControls(camera, renderer.domElement);
 
   renderer.setSize(window.innerWidth - 20, window.innerHeight - 10);
   renderer.setClearColor(new THREE.Color(COLORS.sky));
@@ -93,17 +88,11 @@ function addLight() {
   var pointLightHelper = new THREE.PointLightHelper(pointLight, 10);
   scene.add(pointLightHelper);
 
-  // var directionalLight = new THREE.DirectionalLight(0xffffff, 0.5);
-  // directionalLight.position.set(-0.5, 1.75, 1);
-  // directionalLight.position.multiplyScalar(30);
-  // directionalLight.castShadow = true;
-  // scene.add(directionalLight);
-  // directionalLight.shadow.mapSize.width = 2048;
-  // directionalLight.shadow.mapSize.height = 2048;
-  // directionalLight.shadow.camera.near = 0.1;
-  // directionalLight.shadow.camera.far = 2000;
-  // var dirlightHelper = new THREE.DirectionalLightHelper(directionalLight, 10);
-  // scene.add(dirlightHelper);
+  hitSpotlight = new THREE.SpotLight(0xff0000);
+  hitSpotlight.position.x = 0;
+  hitSpotlight.position.y = 250;
+  hitSpotlight.position.z = 200;
+  scene.add(hitSpotlight);
 }
 
 function addSky() {
@@ -266,30 +255,75 @@ function createMountain(i, isEast, layer) {
   scene.add(object);
 }
 
+function deleteHitbox(id) {
+  console.log("TCL: deleteHitbox -> id", id);
+  delete dinoHitbox[id];
+}
+
 function detectCollision() {
-  dinoHitbox[0].setFromObject(SocketHandler.mainPlayer.dino);
-  var idx = 1;
+  dinoHitbox[SocketHandler.mainPlayer.dino.playerId].setFromObject(
+    SocketHandler.mainPlayer.dino
+  );
   Object.keys(SocketHandler.otherPlayers).forEach(id => {
-    dinoHitbox[idx].setFromObject(SocketHandler.otherPlayers[id].dino);
-    idx++;
+    dinoHitbox[id].setFromObject(SocketHandler.otherPlayers[id].dino);
   });
+  if (immuneCactus.length !== 0) {
+    console.log("TCL: detectCollision -> immuneCactus", immuneCactus);
+  }
   for (var j = 0; j < cactus.length; j++) {
     cactusHitbox.setFromObject(cactus[j]);
-    if (cactusHitbox.intersectsBox(dinoHitbox[0])) {
-      alert("cactus collide with player");
+    if (
+      cactusHitbox.intersectsBox(
+        dinoHitbox[SocketHandler.mainPlayer.dino.playerId]
+      )
+    ) {
+      // alert("cactus collide with player");
+      hitStatus = true;
+      if (immuneCactus.indexOf(j) == -1) {
+        SocketHandler.hitObstacle();
+        console.log("TCL: detectCollision -> hitStatus", hitStatus);
+        immuneCactus.push(j);
+      }
+    } else {
+      var index = immuneCactus.indexOf(j);
+      if (index !== -1) {
+        immuneCactus.splice(index, 1);
+      }
     }
   }
   for (var j = 0; j < crows.length; j++) {
     crowHitbox.setFromObject(crows[j]);
-    if (crowHitbox.intersectsBox(dinoHitbox[0])) {
-      alert("crow collide with player");
+    if (
+      crowHitbox.intersectsBox(
+        dinoHitbox[SocketHandler.mainPlayer.dino.playerId]
+      )
+    ) {
+      // alert("cactus collide with player");
+      hitStatus = true;
+      if (immuneCrow.indexOf(j) == -1) {
+        SocketHandler.hitObstacle();
+        console.log("TCL: detectCollision -> hitStatus", hitStatus);
+        immuneCrow.push(j);
+      }
+    } else {
+      var index = immuneCrow.indexOf(j);
+      if (index !== -1) {
+        immuneCrow.splice(index, 1);
+      }
     }
   }
-  for (var j = 1; j < dinoHitbox.length; j++) {
-    if (dinoHitbox[j].intersectsBox(dinoHitbox[0])) {
-      alert("dino " + (j + 1) + " collide with player ");
+  Object.keys(dinoHitbox).forEach(id => {
+    if (id !== SocketHandler.mainPlayer.dino.playerId) {
+      if (
+        dinoHitbox[id].intersectsBox(
+          dinoHitbox[SocketHandler.mainPlayer.dino.playerId]
+        )
+      ) {
+        alert("dino " + (j + 1) + " collide with player ");
+      }
     }
-  }
+  });
+
   // console.log(cactusBoxHelper[0]);
   // console.log(cactusHitbox[0]['max']);
   // console.log(cactusHitbox[0]['min']);
@@ -314,26 +348,20 @@ function prepareGame() {
   addLight();
   addPlane();
   createLandscapeFloors();
-  var canvas = document.getElementsByTagName("canvas")[0];
-  // skyGeometry = new THREE.BoxGeometry(
-  //   canvas.width + canvas.width / 5,
-  //   canvas.height,
-  //   1,
-  //   1
-  // );
-  // skyMaterial = new THREE.MeshBasicMaterial({
-  //   map: new THREE.TextureLoader().load(
-  //     "https://s3-us-west-2.amazonaws.com/s.cdpn.io/26757/background.jpg"
-  //   ),
-  //   depthWrite: false,
-  //   side: THREE.BackSide
-  // });
-  // sky = new THREE.Mesh(skyGeometry, skyMaterial);
-  // sky.position.y = 300;
-  // sky.position.z = -CONSTANTS.planeLength / 2 + (CONSTANTS.planeWidth * 5) / 2;
-  // scene.add(sky);
 
   SocketHandler.init(scene, camera);
+  SocketHandler.addSubscriber("delete", deleteHitbox);
+}
+
+function checkHit() {
+  if (hitStatus) {
+    // scene.add(hitSpotlight);
+    hitSpotlight.intensity = 1;
+    hitStatus = false;
+  } else {
+    hitSpotlight.intensity = 0;
+    // scene.remove(hitSpotlight);
+  }
 }
 
 function animate() {
@@ -377,10 +405,11 @@ function animate() {
     SocketHandler.otherPlayers[id].dino.animate(deltaTime);
   });
 
-  renderer.render(scene, camera);
   date.old = date.new;
   elapsed += deltaTime;
   detectCollision();
+  checkHit();
+  renderer.render(scene, camera);
   requestAnimationFrame(animate);
 }
 
@@ -463,11 +492,11 @@ function initGame() {
   var checkServer = window.setInterval(() => {
     if (SocketHandler.checkGameReady()) {
       addMountains();
-      dinoHitbox.push(
-        new THREE.Box3().setFromObject(SocketHandler.mainPlayer.dino)
-      );
+      dinoHitbox[
+        SocketHandler.mainPlayer.dino.playerId
+      ] = new THREE.Box3().setFromObject(SocketHandler.mainPlayer.dino);
       Object.keys(SocketHandler.otherPlayers).forEach(id => {
-        dinoHitbox.push(new THREE.Box3());
+        dinoHitbox[id] = new THREE.Box3();
       });
       cactusHitbox = new THREE.Box3();
       crowHitbox = new THREE.Box3();

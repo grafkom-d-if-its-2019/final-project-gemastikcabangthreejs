@@ -67,7 +67,8 @@ const PROTOTYPE = {
   dino: null,
   crow: null,
   cactus: null,
-  mountain: null
+  mountain: null,
+  dino2: null
 };
 
 const STATUS = {
@@ -125,16 +126,22 @@ colladaLoader.load("/client/cactus.dae", function(collada) {
 });
 gltfLoader.load("/client/dino.glb", function(glb) {
   PROTOTYPE.dino = glb.scene.children[0];
+  console.log("TCL: PROTOTYPE.dino", PROTOTYPE.dino);
   PROTOTYPE.dino.material = MATERIALS.dino;
   PROTOTYPE.dino.castShadow = true;
   PROTOTYPE.dino.receiveShadow = true;
 });
 gltfLoader.load("/client/crow.glb", function(glb) {
   PROTOTYPE.crow = glb.scene.children[0];
-  console.log("TCL: PROTOTYPE.crow", PROTOTYPE.crow);
-  // PROTOTYPE.dino.crow = MATERIALS.crow;
   PROTOTYPE.dino.castShadow = true;
   PROTOTYPE.dino.receiveShadow = true;
+});
+gltfLoader.load("/client/dino2.glb", function(glb) {
+  PROTOTYPE.dino2 = glb.scene.children[0];
+  console.log("TCL: PROTOTYPE.dino2", PROTOTYPE.dino2);
+  PROTOTYPE.dino2.material = MATERIALS.dino;
+  PROTOTYPE.dino2.castShadow = true;
+  PROTOTYPE.dino2.receiveShadow = true;
   STATUS.loader = true;
 });
 

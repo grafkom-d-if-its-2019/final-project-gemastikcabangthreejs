@@ -10,6 +10,7 @@ class SocketHandler {
   static randomSeed = undefined;
   static mode = 1;
   static doneLoading;
+  static subscriberDelete = [];
 
   static init = (scene, camera) => {
     var url = window.location.href.slice(window.location.href.indexOf("?") + 1);
@@ -22,10 +23,29 @@ class SocketHandler {
     this.socket.on("requestHandshake", this.requestHandshake);
     this.socket.on("roomReady", this.roomReady);
     this.socket.on("newPlayer", this.newPlayer);
-    this.socket.on("disconnect", this.disconnect);
+    this.socket.on("disconnectUser", this.disconnectUser);
     this.socket.on("playerMoved", this.playerMoved);
     this.socket.on("gamepadKeyDown", this.gamepadKeyDown);
     this.socket.on("gamepadKeyUp", this.gamepadKeyUp);
+  };
+
+  static addSubscriber(type, func) {
+    if ("delete") {
+      this.subscriberDelete.push(func);
+    }
+  }
+
+  static hitObstacle = () => {
+    this.mainPlayer.lives -= 1;
+    console.log(
+      "TCL: SocketHandler -> statichitObstacle -> this.mainPlayer.lives",
+      this.mainPlayer.lives
+    );
+    if (this.mainPlayer.lives == 0) {
+      this.socket.emit("deadPlayer", this.mainPlayer);
+      alert("Game Over");
+      window.location = "/";
+    }
   };
 
   static checkGameReady = () => {
@@ -65,8 +85,11 @@ class SocketHandler {
     this.otherPlayers[player.playerId] = player;
   };
 
-  static disconnect = id => {
+  static disconnectUser = id => {
     this.scene.remove(this.otherPlayers[id].dino);
+    this.subscriberDelete.forEach(func => {
+      func(id);
+    });
     delete this.otherPlayers[id];
   };
 
@@ -75,13 +98,9 @@ class SocketHandler {
   };
 
   static playerMoved = action => {
-    console.log("TCL: SocketHandler -> action", action);
     Controls.dino[action.type](action.key)(
       this.otherPlayers[action.player.playerId].dino
     );
-    // this.otherPlayers[player.playerId].dino.speed.x = player.speed.x;
-    // this.otherPlayers[player.playerId].dino.speed.y = player.speed.y;
-    // this.otherPlayers[player.playerId].dino.speed.z = player.speed.z;
   };
 
   static randomNumber = (min, max) => {

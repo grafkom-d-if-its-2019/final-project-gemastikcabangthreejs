@@ -25,10 +25,12 @@ class Controls {
         case "KeyZ":
           return dino => {
             dino.jump();
+            dino.changeToStand();
           };
         case "KeyX":
           return dino => {
             dino.duck();
+            dino.changeToDuck();
           };
         default:
           return dino => {
@@ -53,6 +55,10 @@ class Controls {
         case "ArrowDown":
           return dino => {
             dino.velocityMultiplier.z = 0.9;
+          };
+        case "KeyX":
+          return dino => {
+            dino.changeToStand();
           };
         default:
           return dino => {

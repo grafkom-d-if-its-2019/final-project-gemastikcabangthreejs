@@ -80,18 +80,22 @@ io.of("/room").on("connection", function(socket) {
       players: {},
       mode: socket.handshake.query.mode
     };
-    GLOBALS.rooms[currentRoom].addPlayers(socket.id);
-    Object.keys(GLOBALS.rooms[currentRoom].players).forEach(playerId => {
-      requestHandshake.players[playerId] = GLOBALS.players[playerId];
-    });
-    socket.emit("requestHandshake", requestHandshake);
+    if (!!GLOBALS.rooms[currentRoom]) {
+      GLOBALS.rooms[currentRoom].addPlayers(socket.id);
+      Object.keys(GLOBALS.rooms[currentRoom].players).forEach(playerId => {
+        requestHandshake.players[playerId] = GLOBALS.players[playerId];
+      });
+      socket.emit("requestHandshake", requestHandshake);
+    }
 
     /**
      * on New Player
      */
-    socket
-      .to(GLOBALS.players[socket.id].room)
-      .emit("newPlayer", GLOBALS.players[socket.id]);
+    if (!!GLOBALS.players[socket.id]) {
+      socket
+        .to(GLOBALS.players[socket.id].room)
+        .emit("newPlayer", GLOBALS.players[socket.id]);
+    }
 
     /**
      * if Game Ready
@@ -99,9 +103,22 @@ io.of("/room").on("connection", function(socket) {
     socket.on("acknowledge", function() {
       var ready = GLOBALS.rooms[currentRoom].roomReady();
       if (ready === true) {
-        socket.emit("roomReady", true);
-        socket.to(GLOBALS.players[socket.id].room).emit("roomReady", true);
-        GLOBALS.rooms[currentRoom].setPlay();
+        if (!!GLOBALS.players[socket.id]) {
+          socket.emit("roomReady", true);
+          socket.to(GLOBALS.players[socket.id].room).emit("roomReady", true);
+          GLOBALS.rooms[currentRoom].setPlay();
+        }
+      }
+    });
+
+    /**
+     * Hit object
+     */
+    socket.on("deadPlayer", function(player) {
+      if (!!GLOBALS.players[socket.id]) {
+        socket
+          .to(GLOBALS.players[player.playerId].room)
+          .emit("disconnectUser", socket.id);
       }
     });
 
@@ -110,8 +127,12 @@ io.of("/room").on("connection", function(socket) {
      */
     socket.on("disconnect", function() {
       console.log("user disconnected");
-      delete GLOBALS.players[socket.id];
-      io.emit("disconnect", socket.id);
+      if (!!GLOBALS.players[socket.id]) {
+        socket
+          .to(GLOBALS.players[socket.id].room)
+          .emit("disconnectUser", socket.id);
+        delete GLOBALS.players[socket.id];
+      }
     });
 
     /**
@@ -119,7 +140,9 @@ io.of("/room").on("connection", function(socket) {
      */
     socket.on("playerMovement", function(payload) {
       var playerId = payload.player.playerId;
-      socket.to(GLOBALS.players[playerId].room).emit("playerMoved", payload);
+      if (!!GLOBALS.players[socket.id]) {
+        socket.to(GLOBALS.players[playerId].room).emit("playerMoved", payload);
+      }
     });
   });
 });
