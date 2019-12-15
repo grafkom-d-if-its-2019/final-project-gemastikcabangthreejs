@@ -5,32 +5,11 @@
       <author>Blender User</author>
       <authoring_tool>Blender 2.80.75 commit date:2019-07-29, commit time:14:47, hash:f6cb5f54494e</authoring_tool>
     </contributor>
-    <created>2019-12-13T15:39:06</created>
-    <modified>2019-12-13T15:39:06</modified>
+    <created>2019-12-15T12:37:40</created>
+    <modified>2019-12-15T12:37:40</modified>
     <unit name="meter" meter="1"/>
     <up_axis>Z_UP</up_axis>
   </asset>
-  <library_cameras>
-    <camera id="Camera-camera" name="Camera">
-      <optics>
-        <technique_common>
-          <perspective>
-            <xfov sid="xfov">49.13434</xfov>
-            <aspect_ratio>1.777778</aspect_ratio>
-            <znear sid="znear">0.1</znear>
-            <zfar sid="zfar">100</zfar>
-          </perspective>
-        </technique_common>
-      </optics>
-      <extra>
-        <technique profile="blender">
-          <shiftx sid="shiftx" type="float">0</shiftx>
-          <shifty sid="shifty" type="float">0</shifty>
-          <dof_distance sid="dof_distance" type="float">0</dof_distance>
-        </technique>
-      </extra>
-    </camera>
-  </library_cameras>
   <library_effects>
     <effect id="CACTUS_GREEN-effect">
       <profile_COMMON>
@@ -92,12 +71,8 @@
   </library_geometries>
   <library_visual_scenes>
     <visual_scene id="Scene" name="Scene">
-      <node id="Camera" name="Camera" type="NODE">
-        <matrix sid="transform">0.7071068 -0.2762885 0.6508953 12 0.7071068 0.2762885 -0.6508952 -12 0 0.9205049 0.390731 10 0 0 0 1</matrix>
-        <instance_camera url="#Camera-camera"/>
-      </node>
       <node id="Cube" name="Cube" type="NODE">
-        <matrix sid="transform">1.437839 0.2672338 0 1.06004 -0.2672338 1.437839 0 -1.033788 0 0 1.462462 1.789019 0 0 0 1</matrix>
+        <matrix sid="transform">1.437839 0.2672338 0 0 -0.2672338 1.437839 0 0 0 0 1.462462 1.789019 0 0 0 1</matrix>
         <instance_geometry url="#Cube_001-mesh" name="Cube">
           <bind_material>
             <technique_common>

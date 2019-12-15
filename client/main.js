@@ -23,6 +23,7 @@ import {
 } from "./constants";
 import OrbitControls from "three-orbitcontrols";
 import Controls from "./controls";
+import { isObject } from "util";
 
 var controls, renderer, scene, camera;
 var plane, dino, socket;
@@ -44,6 +45,8 @@ var loader;
 var loading = 0;
 
 var date;
+var dinoHitbox;
+var cactusHitbox;
 
 function createScene() {
   scene = new THREE.Scene();
@@ -262,6 +265,21 @@ function createMountain(i, isEast, layer) {
   scene.add(object);
 }
 
+function detectCollision() {
+  dinoHitbox.setFromObject(SocketHandler.mainPlayer.dino);
+  
+  for (var i = 0; i < cactus.length; i++) {
+    cactusHitbox.setFromObject(cactus[i]);
+    if (cactusHitbox.intersectsBox(dinoHitbox)) {
+      alert("collide");
+    } 
+  }
+  // console.log(cactusBoxHelper[0]);
+  // console.log(cactusHitbox[0]['max']);
+  // console.log(cactusHitbox[0]['min']);
+  // console.log(cactusBoxHelper.length);
+}
+
 function addMountains() {
   for (var layer = 1; layer < 4; layer += 1) {
     for (var i = 0; i < 60; i += 1) {
@@ -300,6 +318,7 @@ function prepareGame() {
   // scene.add(sky);
 
   SocketHandler.init(scene, camera);
+  
 }
 
 function animate() {
@@ -342,9 +361,11 @@ function animate() {
   Object.keys(SocketHandler.otherPlayers).forEach(id => {
     SocketHandler.otherPlayers[id].dino.animate(deltaTime);
   });
+  
   renderer.render(scene, camera);
   date.old = date.new;
   elapsed += deltaTime;
+  detectCollision();
   requestAnimationFrame(animate);
 }
 
@@ -424,6 +445,8 @@ function initGame() {
   var checkServer = window.setInterval(() => {
     if (SocketHandler.checkGameReady()) {
       addMountains();
+      dinoHitbox = new THREE.Box3().setFromObject(SocketHandler.mainPlayer.dino);
+      cactusHitbox = new THREE.Box3();
       startGame();
       date = {
         old: Date.now(),
