@@ -63,7 +63,7 @@ function createScene() {
   renderer = new THREE.WebGLRenderer({ antialias: true });
   renderer.shadowMap.enabled = true;
   renderer.shadowMap.type = THREE.PCFSoftShadowMap;
-  controls = new OrbitControls(camera, renderer.domElement);
+  // controls = new OrbitControls(camera, renderer.domElement);
 
   renderer.setSize(window.innerWidth - 20, window.innerHeight - 10);
   renderer.setClearColor(new THREE.Color(COLORS.sky));
@@ -264,66 +264,60 @@ function deleteHitbox(id) {
   delete dinoHitbox[id];
 }
 
-function gameOver () {
+function gameOver() {
   gameoverCondition = 1;
   var gameover = document.getElementById("gameover"),
     fadeInInterval,
     fadeOutInterval;
-    clearInterval(fadeInInterval);
-    clearInterval(fadeOutInterval);
-    
-    gameover.fadeIn = function(timing) {
+  clearInterval(fadeInInterval);
+  clearInterval(fadeOutInterval);
+
+  gameover.fadeIn = function(timing) {
     var newValue = 0;
-    
-    gameover.style.display = 'block';
+
+    gameover.style.display = "block";
     gameover.style.opacity = 0;
 
-    document.getElementById('endScore').innerHTML =  "Game Over!<br>You Scored: " + String(Math.floor(elapsed));
-    
-    fadeInInterval = setInterval(function(){ 
-    
-    if (newValue < 1) {
-    newValue += 0.01;
-    } else if (newValue === 1) {
-    clearInterval(fadeInInterval);   
-    }
-    
-    gameover.style.opacity = newValue;
-    
-    }, timing);
-    
-    }
-    
-    gameover.fadeIn(10);
+    document.getElementById("endScore").innerHTML =
+      "Game Over!<br>You Scored: " + String(Math.floor(elapsed));
 
-  
-  document.getElementById("btn-restart").addEventListener("click", function () {
+    fadeInInterval = setInterval(function() {
+      if (newValue < 1) {
+        newValue += 0.01;
+      } else if (newValue === 1) {
+        clearInterval(fadeInInterval);
+      }
+
+      gameover.style.opacity = newValue;
+    }, timing);
+  };
+
+  gameover.fadeIn(10);
+
+  document.getElementById("btn-restart").addEventListener("click", function() {
     clearInterval(fadeInInterval);
     clearInterval(fadeOutInterval);
 
     gameover.fadeOut = function(timing) {
-    var newValue = 1;
-    gameover.style.opacity = 1;
+      var newValue = 1;
+      gameover.style.opacity = 1;
 
-    fadeOutInterval = setInterval(function(){ 
+      fadeOutInterval = setInterval(function() {
+        if (newValue > 0) {
+          newValue -= 0.01;
+        } else if (newValue < 0) {
+          gameover.style.opacity = 0;
+          gameover.style.display = "none";
+          clearInterval(fadeOutInterval);
+        }
 
-    if (newValue > 0) {
-    newValue -= 0.01;
-    } else if (newValue < 0) {
-    gameover.style.opacity = 0;
-    gameover.style.display = 'none';
-    clearInterval(fadeOutInterval);
-    }
-
-    gameover.style.opacity = newValue;
-
-    }, timing);
-
-    }
+        gameover.style.opacity = newValue;
+      }, timing);
+    };
 
     gameover.fadeOut(10);
-    window.location = "/";    
-  } );
+    window.location = "/";
+  });
 }
 
 function detectCollision() {
@@ -388,12 +382,23 @@ function detectCollision() {
   }
   Object.keys(dinoHitbox).forEach(id => {
     if (id !== SocketHandler.mainPlayer.dino.playerId) {
+      console.log(
+        "TCL: detectCollision -> dinoHitbox[id].intersectsBox(dinoHitbox[SocketHandler.mainPlayer.dino.playerId])",
+        dinoHitbox[id].intersectsBox(
+          dinoHitbox[SocketHandler.mainPlayer.dino.playerId]
+        )
+      );
       if (
         dinoHitbox[id].intersectsBox(
           dinoHitbox[SocketHandler.mainPlayer.dino.playerId]
         )
       ) {
-        alert("dino " + (j + 1) + " collide with player ");
+        SocketHandler.mainPlayer.dino.speed.x = 0;
+        SocketHandler.mainPlayer.dino.speed.y = 0;
+        SocketHandler.mainPlayer.dino.speed.z = 0;
+        SocketHandler.otherPlayers[id].dino.speed.x = 0;
+        SocketHandler.otherPlayers[id].dino.speed.y = 0;
+        SocketHandler.otherPlayers[id].dino.speed.z = 0;
       }
     }
   });
@@ -439,13 +444,12 @@ function checkHit() {
 }
 
 function updateScore() {
-  score.innerHTML =  String(Math.floor(elapsed));
+  score.innerHTML = String(Math.floor(elapsed));
 }
 
 function updateLives(val) {
   curLives.innerHTML = "Life: " + String(Math.floor(val));
 }
-
 
 function animate() {
   date.new = Date.now();
@@ -576,10 +580,10 @@ function initGame() {
   }, 1000);
   document.addEventListener("keydown", onKeyDown);
   document.addEventListener("keyup", onKeyUp);
-  score = document.getElementById('score');
-  curLives = document.getElementById('lives');
-  score.innerHTML = '0';
-  curLives.innerHTML = 'Life: 3';
+  score = document.getElementById("score");
+  curLives = document.getElementById("lives");
+  score.innerHTML = "0";
+  curLives.innerHTML = "Life: 3";
   var checkServer = window.setInterval(() => {
     if (SocketHandler.checkGameReady()) {
       addMountains();

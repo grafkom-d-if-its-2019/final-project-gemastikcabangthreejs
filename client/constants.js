@@ -136,7 +136,7 @@ gltfLoader.load("/client/crow.glb", function(glb) {
   PROTOTYPE.dino.castShadow = true;
   PROTOTYPE.dino.receiveShadow = true;
 });
-gltfLoader.load("/client/dino2.glb", function(glb) {
+gltfLoader.load("/client/Dino2.glb", function(glb) {
   PROTOTYPE.dino2 = glb.scene.children[0];
   console.log("TCL: PROTOTYPE.dino2", PROTOTYPE.dino2);
   PROTOTYPE.dino2.material = MATERIALS.dino;

@@ -40,7 +40,7 @@ function build(watch) {
         .on("end", () => console.timeEnd(ts))
         .pipe(source("./client/main.js"))
         .pipe(buffer())
-        //   .pipe(guglify({ compress: true }))
+        // .pipe(guglify({ compress: true }))
         .pipe(gulp.dest("./public"))
     );
   }
@@ -52,7 +52,7 @@ function watch() {
   return build(true);
 }
 
-gulp.task("build", () => build());
+gulp.task("build", () => build(false));
 gulp.task("watch", () => watch());
 gulp.task("prod", gulp.series("build"));
 gulp.task("dev", gulp.series("watch"));

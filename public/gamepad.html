@@ -64,7 +64,7 @@
         socket.on('connect' , () => {
           var id = "GamepadID = " + socket.id.replace("/gamepad#", "");
           $("#gamepadid").val(id);
-          var counter;
+          var counter = null;
           socket.on("userConnect", function(playerId){
             $("#msg").text("a user connected");
           })
@@ -72,17 +72,20 @@
             var action = $(this).attr('id');
             if (action != 'submitbutton'){
               socket.emit('keyDown', action, socket.id)
-              counter = window.setInterval(function(){
-                socket.emit('keyDown', action, socket.id)
-              }, 30)
+              if (!!counter){
+                counter = window.setInterval(function(){
+                  socket.emit('keyDown', action, socket.id)
+                }, 100)
+              }
             }
           })
           $('button').on("mouseup touchend",function(){
             var action = $(this).attr('id');
             if (action != 'submitbutton'){
               console.log("TCL: keyUp")
-              window.clearInterval(counter)
               socket.emit('keyUp', action, socket.id)
+              window.clearInterval(counter)
+              counter = null
             }
           })
         });

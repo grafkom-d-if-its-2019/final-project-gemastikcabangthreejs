@@ -104,8 +104,10 @@ io.of("/room").on("connection", function(socket) {
       var ready = GLOBALS.rooms[currentRoom].roomReady();
       if (ready === true) {
         if (!!GLOBALS.players[socket.id]) {
-          socket.emit("roomReady", true);
-          socket.to(GLOBALS.players[socket.id].room).emit("roomReady", true);
+          // socket.emit("roomReady", true);
+          io.of("/room")
+            .to(GLOBALS.players[socket.id].room)
+            .emit("roomReady", true);
           GLOBALS.rooms[currentRoom].setPlay();
         }
       }
@@ -140,7 +142,7 @@ io.of("/room").on("connection", function(socket) {
      */
     socket.on("playerMovement", function(payload) {
       var playerId = payload.player.playerId;
-      if (!!GLOBALS.players[socket.id]) {
+      if (!!GLOBALS.players[playerId]) {
         socket.to(GLOBALS.players[playerId].room).emit("playerMoved", payload);
       }
     });
