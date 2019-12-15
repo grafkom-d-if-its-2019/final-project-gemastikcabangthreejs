@@ -13,10 +13,82 @@
             width: 100%;
             height: 100%;
         }
+
+        #score
+        {
+            font-family: 'Life Savers', sans-serif;
+            font-weight: 700;
+            position: absolute;
+            top: 20px;
+            width: 100%;
+            text-align: center;
+            font-size: 10vh;
+            transition: transform 0.5s ease;
+            color: #333344;
+            transform: translatey(0px) scale(1);
+        }
+
+        #lives
+        {
+            font-family: 'Life Savers', sans-serif;
+            font-weight: 700;
+            position: absolute;
+            top: 20px;
+            left: 40px;
+            width: 100%;
+            text-align: left;
+            font-size: 10vh;
+            transition: transform 0.5s ease;
+            color: #FF99CC;
+            text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+            transform: translatey(0px) scale(1);
+        }
+
+        #gameover {
+            background-color: #000000;
+            font-family: 'Life Savers', sans-serif;
+            font-weight: 700;
+            overflow: hidden;
+            width: 100%;
+            height: 100%;
+            text-align: center;
+            background-color: rgba(0, 0, 0, 0.875);
+            display: none;
+            position: absolute;
+            top: 0;
+            left: 0;
+        }
+
+        p {
+            color: #ffffff;
+            font-size: 80px;
+            
+            margin-top: 300px;
+        }
+
+        #btn-restart {
+            color: #E91E63;
+            font-family: 'Life Savers', sans-serif;
+            font-size: 30px;
+            
+            background-color: transparent;
+            border: 2px solid #E91E63;
+            border-radius: 10px;
+            cursor: pointer;
+            margin-top: 20px;
+            padding: 10px 40px;
+        }
+
     </style>
 </head>
 
 <body>
+    <div id="lives">0</div>
+    <div id="score">0</div>
+    <div id="gameover">
+        <p id="endScore"></p>
+        <button id="btn-restart">Play again</button>
+    </div>
     <script src="client/main.js"></script>
 </body>
 

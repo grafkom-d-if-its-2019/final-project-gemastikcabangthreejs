@@ -28,6 +28,9 @@ import { isObject } from "util";
 var controls, renderer, scene, camera;
 var plane, dino, socket;
 var elapsed = 0;
+var gameoverCondition = 0;
+var score = {};
+var curLives = {};
 var otherPlayers = {};
 var unusedCactus = [];
 var unusedCrows = [];
@@ -36,6 +39,7 @@ var mountains = [];
 var cactus = [];
 var immuneCactus = [];
 var immuneCrow = [];
+var renderId = {};
 
 var date;
 var dinoHitbox = {};
@@ -260,6 +264,68 @@ function deleteHitbox(id) {
   delete dinoHitbox[id];
 }
 
+function gameOver () {
+  gameoverCondition = 1;
+  var gameover = document.getElementById("gameover"),
+    fadeInInterval,
+    fadeOutInterval;
+    clearInterval(fadeInInterval);
+    clearInterval(fadeOutInterval);
+    
+    gameover.fadeIn = function(timing) {
+    var newValue = 0;
+    
+    gameover.style.display = 'block';
+    gameover.style.opacity = 0;
+
+    document.getElementById('endScore').innerHTML =  "Game Over!<br>You Scored: " + String(Math.floor(elapsed));
+    
+    fadeInInterval = setInterval(function(){ 
+    
+    if (newValue < 1) {
+    newValue += 0.01;
+    } else if (newValue === 1) {
+    clearInterval(fadeInInterval);   
+    }
+    
+    gameover.style.opacity = newValue;
+    
+    }, timing);
+    
+    }
+    
+    gameover.fadeIn(10);
+
+  
+  document.getElementById("btn-restart").addEventListener("click", function () {
+    clearInterval(fadeInInterval);
+    clearInterval(fadeOutInterval);
+
+    gameover.fadeOut = function(timing) {
+    var newValue = 1;
+    gameover.style.opacity = 1;
+
+    fadeOutInterval = setInterval(function(){ 
+
+    if (newValue > 0) {
+    newValue -= 0.01;
+    } else if (newValue < 0) {
+    gameover.style.opacity = 0;
+    gameover.style.display = 'none';
+    clearInterval(fadeOutInterval);
+    }
+
+    gameover.style.opacity = newValue;
+
+    }, timing);
+
+    }
+
+    gameover.fadeOut(10);
+    window.location = "/";    
+  } );
+}
+
 function detectCollision() {
   dinoHitbox[SocketHandler.mainPlayer.dino.playerId].setFromObject(
     SocketHandler.mainPlayer.dino
@@ -280,7 +346,11 @@ function detectCollision() {
       // alert("cactus collide with player");
       hitStatus = true;
       if (immuneCactus.indexOf(j) == -1) {
-        SocketHandler.hitObstacle();
+        var lives = SocketHandler.hitObstacle();
+        updateLives(lives);
+        if (lives == 0) {
+          gameOver();
+        }
         console.log("TCL: detectCollision -> hitStatus", hitStatus);
         immuneCactus.push(j);
       }
@@ -301,7 +371,11 @@ function detectCollision() {
       // alert("cactus collide with player");
       hitStatus = true;
       if (immuneCrow.indexOf(j) == -1) {
-        SocketHandler.hitObstacle();
+        var lives = SocketHandler.hitObstacle();
+        updateLives(lives);
+        if (lives == 0) {
+          gameOver();
+        }
         console.log("TCL: detectCollision -> hitStatus", hitStatus);
         immuneCrow.push(j);
       }
@@ -364,6 +438,15 @@ function checkHit() {
   }
 }
 
+function updateScore() {
+  score.innerHTML =  String(Math.floor(elapsed));
+}
+
+function updateLives(val) {
+  curLives.innerHTML = "Life: " + String(Math.floor(val));
+}
+
+
 function animate() {
   date.new = Date.now();
   var deltaTime = (date.new - date.old) / 1000;
@@ -407,9 +490,13 @@ function animate() {
 
   date.old = date.new;
   elapsed += deltaTime;
+  updateScore();
   detectCollision();
   checkHit();
   renderer.render(scene, camera);
+  if (gameoverCondition == 1) {
+    return;
+  }
   requestAnimationFrame(animate);
 }
 
@@ -489,6 +576,10 @@ function initGame() {
   }, 1000);
   document.addEventListener("keydown", onKeyDown);
   document.addEventListener("keyup", onKeyUp);
+  score = document.getElementById('score');
+  curLives = document.getElementById('lives');
+  score.innerHTML = '0';
+  curLives.innerHTML = 'Life: 3';
   var checkServer = window.setInterval(() => {
     if (SocketHandler.checkGameReady()) {
       addMountains();
@@ -505,7 +596,7 @@ function initGame() {
         old: Date.now(),
         new: Date.now()
       };
-      requestAnimationFrame(animate);
+      animate();
       clearInterval(checkServer);
     }
   }, 1000);

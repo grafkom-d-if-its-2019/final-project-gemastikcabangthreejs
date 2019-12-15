@@ -43,9 +43,8 @@ class SocketHandler {
     );
     if (this.mainPlayer.lives == 0) {
       this.socket.emit("deadPlayer", this.mainPlayer);
-      alert("Game Over");
-      window.location = "/";
-    }
+    } 
+    return this.mainPlayer.lives;
   };
 
   static checkGameReady = () => {
