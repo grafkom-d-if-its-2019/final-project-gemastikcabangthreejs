@@ -45,8 +45,9 @@ var loader;
 var loading = 0;
 
 var date;
-var dinoHitbox;
+var dinoHitbox = [];
 var cactusHitbox;
+var crowHitbox;
 
 function createScene() {
   scene = new THREE.Scene();
@@ -266,13 +267,31 @@ function createMountain(i, isEast, layer) {
 }
 
 function detectCollision() {
-  dinoHitbox.setFromObject(SocketHandler.mainPlayer.dino);
-  
-  for (var i = 0; i < cactus.length; i++) {
-    cactusHitbox.setFromObject(cactus[i]);
-    if (cactusHitbox.intersectsBox(dinoHitbox)) {
-      alert("collide");
-    } 
+  dinoHitbox[0].setFromObject(SocketHandler.mainPlayer.dino);
+  var idx = 1;
+  Object.keys(SocketHandler.otherPlayers).forEach(id => {
+    dinoHitbox[idx].setFromObject(SocketHandler.otherPlayers[id].dino);
+    idx++;
+  });
+  for (var i = 0; i < dinoHitbox.length; i++) {
+    for (var j = 0; j < cactus.length; j++) {
+      cactusHitbox.setFromObject(cactus[j]);
+      if (cactusHitbox.intersectsBox(dinoHitbox[i])) {
+        alert("cactus collide with player " + (i + 1));
+      } 
+      
+    }
+    for (var j = 0; j < crows.length; j++) {
+      crowHitbox.setFromObject(crows[j]);
+      if (crowHitbox.intersectsBox(dinoHitbox[i])) {
+        alert("crow collide with player " + (i + 1));
+      } 
+    }
+    for (var j = i + 1; j < dinoHitbox.length; j++) {
+      if (dinoHitbox[j].intersectsBox(dinoHitbox[i])) {
+        alert("dino " + (i + 1) + " collide with player " + (j + 1));
+      } 
+    }
   }
   // console.log(cactusBoxHelper[0]);
   // console.log(cactusHitbox[0]['max']);
@@ -445,8 +464,12 @@ function initGame() {
   var checkServer = window.setInterval(() => {
     if (SocketHandler.checkGameReady()) {
       addMountains();
-      dinoHitbox = new THREE.Box3().setFromObject(SocketHandler.mainPlayer.dino);
+      dinoHitbox.push(new THREE.Box3().setFromObject(SocketHandler.mainPlayer.dino));
+      Object.keys(SocketHandler.otherPlayers).forEach(id => {
+        dinoHitbox.push(SocketHandler.otherPlayers[id].dino);
+      });
       cactusHitbox = new THREE.Box3();
+      crowHitbox = new THREE.Box3();
       startGame();
       date = {
         old: Date.now(),
